@@ -34,12 +34,4 @@ final class Loader extends PluginBase{
 	public function getPlayerManager() : PlayerManager{
 		return $this->player_manager;
 	}
-
-	/**
-	 * @return WorldManager
-	 * @internal
-	 */
-	public function getWorldManager() : WorldManager{
-		return $this->world_manager;
-	}
 }
