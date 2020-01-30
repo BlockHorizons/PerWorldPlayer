@@ -5,4 +5,7 @@ branches:
 projects:
   PerWorldPlayer:
     path: ""
+    libs:
+      - src: poggit/libasynql/libasynql
+        version: ^3.1.1
 ...
