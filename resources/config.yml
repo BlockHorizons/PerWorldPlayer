@@ -1,0 +1,68 @@
+---
+# Configuration file for PerWorldData by BlockHorizons
+
+# Configure what player specific data must be per-worlded.
+Save-Data:
+  inventories:
+    # Whether to per-world player's inventory
+    normal: true
+    # Whether to per-world player's armor contents
+    armor: true
+    # Whether to per-world player's ender inventory
+    ender: true
+  # Whether to per-world player's health
+  health: true
+  # Whether to per-world player's effects
+  effects: true
+  # Whether to per-world player's gamemode
+  gamemode: true
+  # Whether to per-world player's experience
+  experience: true
+  # Whether to per-world player's hunger bar and food attributes
+  food:
+    hunger: true
+    saturation: true
+    exhaustion: true
+
+# Worlds in which inventories should be bundled.
+#
+# The example below bundles hub1, hub2 and hub3 into one category
+# labelled "hubs". Players will share the same inventory in all
+# three worlds (hub1, hub2, hub3).
+#
+# Bundled-Worlds:
+#   hubs:
+#     - hub1
+#     - hub2
+#     - hub3
+#
+# If you don't want to bundle any worlds, set the value to an empty
+# array like so:
+# Bundled-Worlds: []
+#
+Bundled-Worlds:
+  PlotWorlds:
+    - plot1
+    - plot2
+
+# Database config
+Database:
+  # The database type. "sqlite", "mysql" are supported.
+  type: sqlite
+
+  # Edit these settings only if you choose "sqlite".
+  sqlite:
+    # The file name of the database in the plugin data folder.
+    # You can also put an absolute path here.
+    file: data.sqlite
+  # Edit these settings only if you choose "mysql".
+  mysql:
+    host: 127.0.0.1
+    # Avoid using the "root" user for security reasons.
+    username: root
+    password: ""
+    schema: your_schema
+  # The maximum number of simultaneous SQL queries
+  # Recommended: 1 for sqlite, 2 for MySQL. You may want to further increase this value if your MySQL connection is very slow.
+  worker-limit: 1
+...

@@ -1,0 +1,9 @@
+name: PerWorldPlayer
+main: BlockHorizons\PerWorldPlayer\Loader
+api: 3.11.1
+version: 0.0.1
+
+permissions:
+  per-world-player.bypass:
+    default: false
+    description: Allows bypassing the per world player.
