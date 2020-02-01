@@ -46,14 +46,16 @@ final class WorldInstance{
 	public function onPlayerEnter(Player $player, ?WorldInstance $from_world = null) : void{
 		if(!$player->hasPermission("per-world-player.bypass")){
 			if($from_world === null || !self::haveSameBundles($this, $from_world)){
-				$instance = $this->player_manager->get($player);
-				$instance->wait($this);
-				$this->database->load($this, $player, function(PlayerWorldData $data) use ($player, $instance) : void{
-					if($player->isOnline()){
-						$data->inject($player);
-						$instance->notify($this);
-					}
-				});
+				$instance = $this->player_manager->getNullable($player);
+				if($instance !== null){
+					$instance->wait($this);
+					$this->database->load($this, $player, function(PlayerWorldData $data) use ($player, $instance) : void{
+						if($player->isOnline()){
+							$data->inject($player);
+							$instance->notify($this);
+						}
+					});
+				}
 			}
 		}
 	}

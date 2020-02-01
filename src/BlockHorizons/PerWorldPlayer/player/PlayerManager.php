@@ -27,4 +27,8 @@ final class PlayerManager{
 	public function get(Player $player) : PlayerInstance{
 		return $this->players[$player->getId()];
 	}
+
+	public function getNullable(Player $player) : ?PlayerInstance{
+		return $this->players[$player->getId()] ?? null;
+	}
 }

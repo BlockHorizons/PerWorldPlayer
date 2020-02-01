@@ -26,7 +26,8 @@ final class PlayerListener implements Listener{
 	}
 
 	private function cancelIfWaiting(Player $player, Cancellable $event) : bool{
-		if($this->manager->get($player)->isWaiting()){
+		$instance = $this->manager->getNullable($player);
+		if($instance !== null && $instance->isWaiting()){
 			$event->setCancelled();
 			return true;
 		}
