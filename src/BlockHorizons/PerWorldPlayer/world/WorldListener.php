@@ -28,8 +28,7 @@ final class WorldListener implements Listener{
 
 	/**
 	 * @param LevelLoadEvent $event
-	 * @priority MONITOR
-	 * @ignoreCancelled true
+	 * @priority LOWEST
 	 */
 	public function onWorldLoad(LevelLoadEvent $event) : void{
 		$this->manager->onWorldLoad($event->getLevel());

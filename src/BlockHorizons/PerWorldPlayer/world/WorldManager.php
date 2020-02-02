@@ -11,6 +11,8 @@ use BlockHorizons\PerWorldPlayer\world\data\SaveDataManager;
 use BlockHorizons\PerWorldPlayer\world\database\WorldDatabase;
 use BlockHorizons\PerWorldPlayer\world\database\WorldDatabaseFactory;
 use pocketmine\level\Level;
+use pocketmine\scheduler\ClosureTask;
+use pocketmine\scheduler\TaskScheduler;
 use pocketmine\Server;
 
 final class WorldManager{
@@ -24,6 +26,9 @@ final class WorldManager{
 	/** @var PlayerManager */
 	private $player_manager;
 
+	/** @var TaskScheduler */
+	private $scheduler;
+
 	/** @var WorldInstance[] */
 	private $worlds = [];
 
@@ -31,6 +36,7 @@ final class WorldManager{
 		$this->bundle = new BundleManager($plugin->getConfig()->get("Bundled-Worlds"));
 		$this->database = WorldDatabaseFactory::create($plugin);
 		$this->player_manager = $plugin->getPlayerManager();
+		$this->scheduler = $plugin->getScheduler();
 		$plugin->getServer()->getPluginManager()->registerEvents(new WorldListener($this), $plugin);
 	}
 
@@ -49,8 +55,14 @@ final class WorldManager{
 		$this->worlds[$world->getId()] = new WorldInstance($world, $this->database, $this->player_manager, $this->bundle->getBundle($world->getFolderName()));
 	}
 
-	public function onWorldUnload(Level $world) : void{
-		unset($this->worlds[$world->getId()]);
+	public function onWorldUnload(Level $world, bool $instant = false) : void{
+		if($instant){
+			unset($this->worlds[$world->getId()]);
+		}else{
+			$this->scheduler->scheduleDelayedTask(new ClosureTask(function(int $currentTick) use($world) : void{
+				$this->onWorldUnload($world, true);
+			}), 1);
+		}
 	}
 
 	public function get(Level $world) : WorldInstance{
