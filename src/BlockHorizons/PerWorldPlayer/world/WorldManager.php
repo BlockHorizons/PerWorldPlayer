@@ -60,7 +60,9 @@ final class WorldManager{
 			unset($this->worlds[$world->getId()]);
 		}else{
 			$this->scheduler->scheduleDelayedTask(new ClosureTask(function(int $currentTick) use($world) : void{
-				$this->onWorldUnload($world, true);
+				if($world->isClosed()){
+					$this->onWorldUnload($world, true);
+				}
 			}), 1);
 		}
 	}
