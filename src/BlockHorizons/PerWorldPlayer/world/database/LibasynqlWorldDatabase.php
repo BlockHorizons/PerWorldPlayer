@@ -63,19 +63,19 @@ abstract class LibasynqlWorldDatabase implements WorldDatabase{
 		});
 	}
 
-	public function save(WorldInstance $world, Player $player, bool $quit) : void{
+	public function save(WorldInstance $world, Player $player, PlayerWorldData $data, bool $quit) : void{
 		$this->database->executeInsert(WorldDatabaseStmts::SAVE, [
 			"id" => $this->saveBinaryString(self::createIdentifier($player, $world)),
-			"armor_inventory" => $this->saveBinaryString(WorldDatabaseUtils::serializeInventoryContents($player->getArmorInventory()->getContents())),
-			"inventory" => $this->saveBinaryString(WorldDatabaseUtils::serializeInventoryContents($player->getInventory()->getContents())),
-			"ender_inventory" => $this->saveBinaryString(WorldDatabaseUtils::serializeInventoryContents($player->getEnderChestInventory()->getContents())),
-			"health" => $player->getHealth(),
-			"effects" => $this->saveBinaryString(WorldDatabaseUtils::serializeEffects($player->getEffects())),
-			"gamemode" => $player->getGamemode(),
-			"experience" => $player->getCurrentTotalXp(),
-			"food" => $player->getFood(),
-			"exhaustion" => $player->getExhaustion(),
-			"saturation" => $player->getSaturation()
+			"armor_inventory" => $this->saveBinaryString(WorldDatabaseUtils::serializeInventoryContents($data->armor_inventory)),
+			"inventory" => $this->saveBinaryString(WorldDatabaseUtils::serializeInventoryContents($data->inventory)),
+			"ender_inventory" => $this->saveBinaryString(WorldDatabaseUtils::serializeInventoryContents($data->ender_inventory)),
+			"health" => $data->health,
+			"effects" => $this->saveBinaryString(WorldDatabaseUtils::serializeEffects($data->effects)),
+			"gamemode" => $data->gamemode,
+			"experience" => $data->experience,
+			"food" => $data->food,
+			"exhaustion" => $data->exhaustion,
+			"saturation" => $data->saturation
 		]);
 	}
 

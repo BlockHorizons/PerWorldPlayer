@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BlockHorizons\PerWorldPlayer\world\database;
 
+use BlockHorizons\PerWorldPlayer\world\data\PlayerWorldData;
 use BlockHorizons\PerWorldPlayer\world\WorldInstance;
 use Closure;
 use pocketmine\Player;
@@ -11,7 +12,7 @@ use pocketmine\Player;
 interface WorldDatabase{
 
 	/**
-	 * Loads player inventory from a given world.
+	 * Loads player data from a given world.
 	 *
 	 * @param WorldInstance $world
 	 * @param Player $player
@@ -21,13 +22,14 @@ interface WorldDatabase{
 	public function load(WorldInstance $world, Player $player, Closure $onLoad) : void;
 
 	/**
-	 * Saves player inventory in a given world.
+	 * Saves player data in a given world.
 	 *
 	 * @param WorldInstance $world
 	 * @param Player $player
+	 * @param PlayerWorldData $data
 	 * @param bool $quit whether the player quit the server.
 	 */
-	public function save(WorldInstance $world, Player $player, bool $quit) : void;
+	public function save(WorldInstance $world, Player $player, PlayerWorldData $data, bool $quit) : void;
 
 	/**
 	 * Called when plugin disables to close any open resources and other stuff.

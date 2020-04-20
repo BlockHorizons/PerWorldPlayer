@@ -7,7 +7,7 @@ namespace BlockHorizons\PerWorldPlayer\world;
 use BlockHorizons\PerWorldPlayer\Loader;
 use BlockHorizons\PerWorldPlayer\player\PlayerManager;
 use BlockHorizons\PerWorldPlayer\world\bundle\BundleManager;
-use BlockHorizons\PerWorldPlayer\world\data\SaveDataManager;
+use BlockHorizons\PerWorldPlayer\world\data\PlayerWorldData;
 use BlockHorizons\PerWorldPlayer\world\database\WorldDatabase;
 use BlockHorizons\PerWorldPlayer\world\database\WorldDatabaseFactory;
 use pocketmine\level\Level;
@@ -44,7 +44,7 @@ final class WorldManager{
 		foreach(Server::getInstance()->getLevels() as $world){
 			$instance = $this->get($world);
 			foreach($world->getPlayers() as $player){
-				$instance->save($player);
+				$instance->save($player, PlayerWorldData::fromPlayer($player));
 			}
 		}
 
