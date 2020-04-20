@@ -72,10 +72,7 @@ final class WorldDatabaseUtils{
 	 */
 	public static function serializeEffects(array $effects) : string{
 		$tag = new ListTag(self::TAG_EFFECTS, [], NBT::TAG_Compound);
-		/**
-		 * @var int $slot
-		 * @var EffectInstance $effect
-		 */
+		/** @var EffectInstance $effect */
 		foreach($effects as $effect){
 			$tag->push(new CompoundTag("", [
 				new ByteTag("Id", $effect->getId()),
