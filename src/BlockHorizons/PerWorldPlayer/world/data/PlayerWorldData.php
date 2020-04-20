@@ -16,6 +16,10 @@ final class PlayerWorldData{
 	}
 
 	public static function fromPlayer(Player $player) : PlayerWorldData{
+		if(!$player->isAlive()){
+			return self::empty();
+		}
+
 		$effects = [];
 		foreach($player->getEffects() as $effect){
 			$effects[] = new EffectInstance($effect->getType(), $effect->getDuration(), $effect->getAmplifier(), $effect->isVisible(), $effect->isAmbient(), $effect->getColor());
@@ -32,7 +36,6 @@ final class PlayerWorldData{
 			$player->getFood(),
 			$player->getExhaustion(),
 			$player->getSaturation()
-
 		);
 	}
 
