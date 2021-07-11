@@ -49,7 +49,7 @@ final class WorldInstance{
 				$instance = $this->player_manager->getNullable($player);
 				if($instance !== null){
 					$instance->wait($this);
-					$this->database->load($this, $player, function(PlayerWorldData $data) use ($player, $instance) : void{
+					$this->database->load($this, $player, function(PlayerWorldData $data) use($player, $instance) : void{
 						if($player->isOnline()){
 							$data->inject($player);
 							$instance->notify($this);
