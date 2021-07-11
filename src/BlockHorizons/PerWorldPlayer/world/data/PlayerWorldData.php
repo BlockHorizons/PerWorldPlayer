@@ -12,12 +12,20 @@ use pocketmine\Server;
 final class PlayerWorldData{
 
 	public static function empty() : PlayerWorldData{
-		return new self([], [], [], 20.0, [], Server::getInstance()->getDefaultGamemode(), 0, 20.0, 0.0, 5.0);
+		return self::emptyWithInventory([], [], []);
+	}
+
+	public static function emptyWithInventory(array $armor, array $inventory, array $ender) : PlayerWorldData{
+		return new self($armor, $inventory, $ender, 20.0, [], Server::getInstance()->getDefaultGamemode(), 0, 20.0, 0.0, 5.0);
 	}
 
 	public static function fromPlayer(Player $player) : PlayerWorldData{
 		if(!$player->isAlive()){
-			return self::empty();
+			return self::emptyWithInventory( // PlayerDeathEvent::getKeepInventory() may not wipe their inventory
+				$player->getArmorInventory()->getContents(),
+				$player->getInventory()->getContents(),
+				$player->getEnderChestInventory()->getContents()
+			);
 		}
 
 		$effects = [];
