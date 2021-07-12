@@ -1,7 +1,7 @@
 name: PerWorldPlayer
 main: BlockHorizons\PerWorldPlayer\Loader
 api: 3.11.1
-version: 0.2.0
+version: 0.3.0
 
 permissions:
   per-world-player.bypass:
