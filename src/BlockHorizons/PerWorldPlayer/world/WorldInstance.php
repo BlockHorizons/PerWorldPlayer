@@ -9,6 +9,7 @@ use BlockHorizons\PerWorldPlayer\world\data\PlayerWorldData;
 use BlockHorizons\PerWorldPlayer\world\database\WorldDatabase;
 use pocketmine\level\Level;
 use pocketmine\Player;
+use BlockHorizons\PerWorldPlayer\events\PerWorldPlayerDataInjectEvent;
 
 final class WorldInstance{
 
@@ -51,7 +52,11 @@ final class WorldInstance{
 					$instance->wait($this);
 					$this->database->load($this, $player, function(PlayerWorldData $data) use($player, $instance) : void{
 						if($player->isOnline()){
-							$data->inject($player);
+							$ev = new PerWorldPlayerDataInjectEvent($player, $this, $data);
+							$ev->call();
+							if(!$ev->isCancelled()){
+								$ev->getPlayerWorldData()->inject($player);
+							}
 							$instance->notify($this);
 						}
 					});
@@ -61,7 +66,7 @@ final class WorldInstance{
 	}
 
 	public function onPlayerExit(Player $player, ?WorldInstance $to_world = null, bool $quit = false) : void{
-		if($to_world === null || !self::haveSameBundles($this, $to_world)){
+		if($to_world === null || !self::haveSameBundles($this, $to_world)){ //TODO: currently plugins cannot bypass this
 			$this->save($player, PlayerWorldData::fromPlayer($player), false, $quit);
 		}
 	}
