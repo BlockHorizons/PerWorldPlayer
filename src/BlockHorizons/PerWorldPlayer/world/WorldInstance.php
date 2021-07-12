@@ -80,6 +80,8 @@ final class WorldInstance{
 		$ev->call();
 		if(!$ev->isCancelled()){
 			$this->database->save($this, $player, $ev->getPlayerWorldData(), $quit);
+		}else{
+			$player->getServer()->getLogger()->debug("Player world data save cancelled for player {$player->getName()} in world {$this->getName()}.");
 		}
 	}
 }

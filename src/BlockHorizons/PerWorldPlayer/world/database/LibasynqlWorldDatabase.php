@@ -76,7 +76,9 @@ abstract class LibasynqlWorldDatabase implements WorldDatabase{
 			"food" => $data->food,
 			"exhaustion" => $data->exhaustion,
 			"saturation" => $data->saturation
-		]);
+		], function(int $insertId, int $affectedRows) use($world, $player) : void{
+			$player->getServer()->getLogger()->debug("Player world data successfully saved for player {$player->getName()} in {$world->getName()}.");
+		});
 	}
 
 	abstract protected function fetchBinaryString(string $string) : string;
