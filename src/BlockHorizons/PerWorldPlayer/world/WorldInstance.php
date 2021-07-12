@@ -10,6 +10,7 @@ use BlockHorizons\PerWorldPlayer\world\database\WorldDatabase;
 use pocketmine\level\Level;
 use pocketmine\Player;
 use BlockHorizons\PerWorldPlayer\events\PerWorldPlayerDataInjectEvent;
+use BlockHorizons\PerWorldPlayer\events\PerWorldPlayerDataSaveEvent;
 
 final class WorldInstance{
 
@@ -72,8 +73,13 @@ final class WorldInstance{
 	}
 
 	public function save(Player $player, PlayerWorldData $data, bool $force = false, bool $quit = false) : void{
-		if($force || !$player->hasPermission("per-world-player.bypass")){
-			$this->database->save($this, $player, $data, $quit);
+		$ev = new PerWorldPlayerDataSaveEvent($player, $this, $data, $quit);
+		if(!$force && $player->hasPermission("per-world-player.bypass")){
+			$ev->setCancelled();
+		}
+		$ev->call();
+		if(!$ev->isCancelled()){
+			$this->database->save($this, $player, $ev->getPlayerWorldData(), $quit);
 		}
 	}
 }
