@@ -9,15 +9,20 @@ use pocketmine\event\Cancellable;
 use pocketmine\Player;
 
 class PerWorldPlayerDataSaveEvent extends PerWorldPlayerDataEvent implements Cancellable{
-	/** @var bool */
-	private $quit;
 
-	public function __construct(Player $player, WorldInstance $worldInstance, PlayerWorldData $playerWorldData, bool $quit){
+	public const CAUSE_WORLD_CHANGE = 0;
+	public const CAUSE_PLAYER_QUIT = 1;
+	public const CAUSE_CUSTOM = 2;
+
+	/** @var int */
+	private $cause;
+
+	public function __construct(Player $player, WorldInstance $worldInstance, PlayerWorldData $playerWorldData, int $cause){
 		parent::__construct($player, $worldInstance, $playerWorldData);
-		$this->quit = $quit;
+		$this->cause = $cause;
 	}
 
-	public function hasQuit() : bool{
-		return $this->quit;
+	public function getCause() : int{
+		return $this->cause;
 	}
 }

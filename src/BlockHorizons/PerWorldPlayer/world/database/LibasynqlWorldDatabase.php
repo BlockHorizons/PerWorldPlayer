@@ -63,7 +63,7 @@ abstract class LibasynqlWorldDatabase implements WorldDatabase{
 		});
 	}
 
-	public function save(WorldInstance $world, Player $player, PlayerWorldData $data, bool $quit) : void{
+	public function save(WorldInstance $world, Player $player, PlayerWorldData $data, int $cause) : void{
 		$this->database->executeInsert(WorldDatabaseStmts::SAVE, [
 			"id" => $this->saveBinaryString(self::createIdentifier($player, $world)),
 			"armor_inventory" => $this->saveBinaryString(WorldDatabaseUtils::serializeInventoryContents($data->armor_inventory)),

@@ -68,18 +68,18 @@ final class WorldInstance{
 
 	public function onPlayerExit(Player $player, ?WorldInstance $to_world = null, bool $quit = false) : void{
 		if($to_world === null || !self::haveSameBundles($this, $to_world)){ //TODO: currently plugins cannot bypass this
-			$this->save($player, PlayerWorldData::fromPlayer($player), false, $quit);
+			$this->save($player, PlayerWorldData::fromPlayer($player), false, $quit ? PerWorldPlayerDataSaveEvent::CAUSE_PLAYER_QUIT : PerWorldPlayerDataSaveEvent::CAUSE_WORLD_CHANGE);
 		}
 	}
 
-	public function save(Player $player, PlayerWorldData $data, bool $force = false, bool $quit = false) : void{
-		$ev = new PerWorldPlayerDataSaveEvent($player, $this, $data, $quit);
+	public function save(Player $player, PlayerWorldData $data, bool $force = false, int $cause = PerWorldPlayerDataSaveEvent::CAUSE_CUSTOM) : void{
+		$ev = new PerWorldPlayerDataSaveEvent($player, $this, $data, $cause);
 		if(!$force && $player->hasPermission("per-world-player.bypass")){
 			$ev->setCancelled();
 		}
 		$ev->call();
 		if(!$ev->isCancelled()){
-			$this->database->save($this, $player, $ev->getPlayerWorldData(), $quit);
+			$this->database->save($this, $player, $ev->getPlayerWorldData(), $cause);
 		}else{
 			$player->getServer()->getLogger()->debug("Player world data save cancelled for player {$player->getName()} in world {$this->getName()}.");
 		}

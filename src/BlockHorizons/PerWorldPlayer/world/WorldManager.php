@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BlockHorizons\PerWorldPlayer\world;
 
+use BlockHorizons\PerWorldPlayer\events\PerWorldPlayerDataSaveEvent;
 use BlockHorizons\PerWorldPlayer\Loader;
 use BlockHorizons\PerWorldPlayer\player\PlayerManager;
 use BlockHorizons\PerWorldPlayer\world\bundle\BundleManager;
@@ -44,7 +45,7 @@ final class WorldManager{
 		foreach(Server::getInstance()->getLevels() as $world){
 			$instance = $this->get($world);
 			foreach($world->getPlayers() as $player){
-				$instance->save($player, PlayerWorldData::fromPlayer($player));
+				$instance->save($player, PlayerWorldData::fromPlayer($player), false, PerWorldPlayerDataSaveEvent::CAUSE_PLAYER_QUIT);
 			}
 		}
 
