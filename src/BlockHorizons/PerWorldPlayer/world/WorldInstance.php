@@ -27,13 +27,17 @@ final class WorldInstance{
 	/** @var PlayerManager */
 	private $player_manager;
 
+	/** @var \Logger */
+	private $logger;
+
 	/** @var string|null */
 	private $bundle;
 
-	public function __construct(Level $level, WorldDatabase $database, PlayerManager $player_manager, ?string $bundle){
+	public function __construct(Level $level, WorldDatabase $database, PlayerManager $player_manager, \Logger $logger, ?string $bundle){
 		$this->name = $level->getFolderName();
 		$this->database = $database;
 		$this->player_manager = $player_manager;
+		$this->logger = $logger;
 		$this->bundle = $bundle;
 	}
 
@@ -79,9 +83,15 @@ final class WorldInstance{
 		}
 		$ev->call();
 		if(!$ev->isCancelled()){
-			$this->database->save($this, $player, $ev->getPlayerWorldData(), $cause);
+			$this->database->save($this, $player, $ev->getPlayerWorldData(), $cause, function(bool $success) use($player) : void{
+				if($success){
+					$this->logger->debug("Data successfully saved for player {$player->getName()} in world {$this->getName()}.");
+				}else{
+					$this->logger->error("Could not save data for player {$player->getName()} in world {$this->getName()}.");
+				}
+			});
 		}else{
-			$player->getServer()->getLogger()->debug("Player world data save cancelled for player {$player->getName()} in world {$this->getName()}.");
+			$this->logger->debug("Data save cancelled for player {$player->getName()} in world {$this->getName()}.");
 		}
 	}
 }

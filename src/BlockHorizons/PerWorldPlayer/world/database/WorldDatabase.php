@@ -28,8 +28,10 @@ interface WorldDatabase{
 	 * @param Player $player
 	 * @param PlayerWorldData $data
 	 * @param int $cause what triggered the save.
+	 * @param Closure $onSave
+	 * @phpstan-param Closure(bool $success) : void $onSave
 	 */
-	public function save(WorldInstance $world, Player $player, PlayerWorldData $data, int $cause) : void;
+	public function save(WorldInstance $world, Player $player, PlayerWorldData $data, int $cause, Closure $onSave) : void;
 
 	/**
 	 * Called when plugin disables to close any open resources and other stuff.

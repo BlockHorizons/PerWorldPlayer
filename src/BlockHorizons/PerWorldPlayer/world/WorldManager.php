@@ -30,6 +30,9 @@ final class WorldManager{
 	/** @var TaskScheduler */
 	private $scheduler;
 
+	/** @var \Logger */
+	private $logger;
+
 	/** @var WorldInstance[] */
 	private $worlds = [];
 
@@ -37,6 +40,7 @@ final class WorldManager{
 		$this->bundle = new BundleManager($plugin->getConfig()->get("Bundled-Worlds"));
 		$this->database = WorldDatabaseFactory::create($plugin);
 		$this->player_manager = $plugin->getPlayerManager();
+		$this->logger = $plugin->getLogger();
 		$this->scheduler = $plugin->getScheduler();
 		$plugin->getServer()->getPluginManager()->registerEvents(new WorldListener($this), $plugin);
 	}
@@ -53,7 +57,7 @@ final class WorldManager{
 	}
 
 	public function onWorldLoad(Level $world) : void{
-		$this->worlds[$world->getId()] = new WorldInstance($world, $this->database, $this->player_manager, $this->bundle->getBundle($world->getFolderName()));
+		$this->worlds[$world->getId()] = new WorldInstance($world, $this->database, $this->player_manager, $this->logger, $this->bundle->getBundle($world->getFolderName()));
 	}
 
 	public function onWorldUnload(Level $world, bool $instant = false) : void{
