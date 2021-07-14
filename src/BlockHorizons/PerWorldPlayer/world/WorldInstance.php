@@ -72,11 +72,11 @@ final class WorldInstance{
 
 	public function onPlayerExit(Player $player, ?WorldInstance $to_world = null, bool $quit = false) : void{
 		if($to_world === null || !self::haveSameBundles($this, $to_world)){ //TODO: currently plugins cannot bypass this
-			$this->save($player, PlayerWorldData::fromPlayer($player), false, $quit ? PerWorldPlayerDataSaveEvent::CAUSE_PLAYER_QUIT : PerWorldPlayerDataSaveEvent::CAUSE_WORLD_CHANGE);
+			$this->save($player, PlayerWorldData::fromPlayer($player), $quit ? PerWorldPlayerDataSaveEvent::CAUSE_PLAYER_QUIT : PerWorldPlayerDataSaveEvent::CAUSE_WORLD_CHANGE);
 		}
 	}
 
-	public function save(Player $player, PlayerWorldData $data, bool $force = false, int $cause = PerWorldPlayerDataSaveEvent::CAUSE_CUSTOM) : void{
+	public function save(Player $player, PlayerWorldData $data, int $cause = PerWorldPlayerDataSaveEvent::CAUSE_CUSTOM, bool $force = false) : void{
 		$ev = new PerWorldPlayerDataSaveEvent($player, $this, $data, $cause);
 		if(!$force && $player->hasPermission("per-world-player.bypass")){
 			$ev->setCancelled();

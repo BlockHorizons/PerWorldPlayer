@@ -49,7 +49,7 @@ final class WorldManager{
 		foreach(Server::getInstance()->getLevels() as $world){
 			$instance = $this->get($world);
 			foreach($world->getPlayers() as $player){
-				$instance->save($player, PlayerWorldData::fromPlayer($player), false, PerWorldPlayerDataSaveEvent::CAUSE_PLAYER_QUIT);
+				$instance->save($player, PlayerWorldData::fromPlayer($player), PerWorldPlayerDataSaveEvent::CAUSE_PLAYER_QUIT);
 			}
 		}
 
