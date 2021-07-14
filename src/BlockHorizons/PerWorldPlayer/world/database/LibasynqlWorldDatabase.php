@@ -11,6 +11,7 @@ use Closure;
 use pocketmine\Player;
 use poggit\libasynql\DataConnector;
 use poggit\libasynql\libasynql;
+use poggit\libasynql\SqlError;
 
 abstract class LibasynqlWorldDatabase implements WorldDatabase{
 
@@ -63,20 +64,29 @@ abstract class LibasynqlWorldDatabase implements WorldDatabase{
 		});
 	}
 
-	public function save(WorldInstance $world, Player $player, PlayerWorldData $data, bool $quit) : void{
-		$this->database->executeInsert(WorldDatabaseStmts::SAVE, [
-			"id" => $this->saveBinaryString(self::createIdentifier($player, $world)),
-			"armor_inventory" => $this->saveBinaryString(WorldDatabaseUtils::serializeInventoryContents($data->armor_inventory)),
-			"inventory" => $this->saveBinaryString(WorldDatabaseUtils::serializeInventoryContents($data->inventory)),
-			"ender_inventory" => $this->saveBinaryString(WorldDatabaseUtils::serializeInventoryContents($data->ender_inventory)),
-			"health" => $data->health,
-			"effects" => $this->saveBinaryString(WorldDatabaseUtils::serializeEffects($data->effects)),
-			"gamemode" => $data->gamemode,
-			"experience" => $data->experience,
-			"food" => $data->food,
-			"exhaustion" => $data->exhaustion,
-			"saturation" => $data->saturation
-		]);
+	public function save(WorldInstance $world, Player $player, PlayerWorldData $data, int $cause, Closure $onSave) : void{
+		$this->database->executeInsert(
+			WorldDatabaseStmts::SAVE,
+			[
+				"id" => $this->saveBinaryString(self::createIdentifier($player, $world)),
+				"armor_inventory" => $this->saveBinaryString(WorldDatabaseUtils::serializeInventoryContents($data->armor_inventory)),
+				"inventory" => $this->saveBinaryString(WorldDatabaseUtils::serializeInventoryContents($data->inventory)),
+				"ender_inventory" => $this->saveBinaryString(WorldDatabaseUtils::serializeInventoryContents($data->ender_inventory)),
+				"health" => $data->health,
+				"effects" => $this->saveBinaryString(WorldDatabaseUtils::serializeEffects($data->effects)),
+				"gamemode" => $data->gamemode,
+				"experience" => $data->experience,
+				"food" => $data->food,
+				"exhaustion" => $data->exhaustion,
+				"saturation" => $data->saturation
+			],
+			function(int $insertId, int $affectedRows) use($onSave) : void{
+				$onSave($affectedRows > 0);
+			},
+			function(SqlError $error) use($onSave) : void{
+				$onSave(false);
+			}
+		);
 	}
 
 	abstract protected function fetchBinaryString(string $string) : string;

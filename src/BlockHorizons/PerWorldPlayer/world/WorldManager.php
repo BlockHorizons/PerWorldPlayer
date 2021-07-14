@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BlockHorizons\PerWorldPlayer\world;
 
+use BlockHorizons\PerWorldPlayer\events\PerWorldPlayerDataSaveEvent;
 use BlockHorizons\PerWorldPlayer\Loader;
 use BlockHorizons\PerWorldPlayer\player\PlayerManager;
 use BlockHorizons\PerWorldPlayer\world\bundle\BundleManager;
@@ -29,6 +30,9 @@ final class WorldManager{
 	/** @var TaskScheduler */
 	private $scheduler;
 
+	/** @var \Logger */
+	private $logger;
+
 	/** @var WorldInstance[] */
 	private $worlds = [];
 
@@ -36,6 +40,7 @@ final class WorldManager{
 		$this->bundle = new BundleManager($plugin->getConfig()->get("Bundled-Worlds"));
 		$this->database = WorldDatabaseFactory::create($plugin);
 		$this->player_manager = $plugin->getPlayerManager();
+		$this->logger = $plugin->getLogger();
 		$this->scheduler = $plugin->getScheduler();
 		$plugin->getServer()->getPluginManager()->registerEvents(new WorldListener($this), $plugin);
 	}
@@ -44,7 +49,7 @@ final class WorldManager{
 		foreach(Server::getInstance()->getLevels() as $world){
 			$instance = $this->get($world);
 			foreach($world->getPlayers() as $player){
-				$instance->save($player, PlayerWorldData::fromPlayer($player));
+				$instance->save($player, PlayerWorldData::fromPlayer($player), PerWorldPlayerDataSaveEvent::CAUSE_PLAYER_QUIT);
 			}
 		}
 
@@ -52,7 +57,7 @@ final class WorldManager{
 	}
 
 	public function onWorldLoad(Level $world) : void{
-		$this->worlds[$world->getId()] = new WorldInstance($world, $this->database, $this->player_manager, $this->bundle->getBundle($world->getFolderName()));
+		$this->worlds[$world->getId()] = new WorldInstance($world, $this->database, $this->player_manager, $this->logger, $this->bundle->getBundle($world->getFolderName()));
 	}
 
 	public function onWorldUnload(Level $world, bool $instant = false) : void{

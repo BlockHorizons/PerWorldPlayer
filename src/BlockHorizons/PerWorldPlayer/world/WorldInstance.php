@@ -9,6 +9,8 @@ use BlockHorizons\PerWorldPlayer\world\data\PlayerWorldData;
 use BlockHorizons\PerWorldPlayer\world\database\WorldDatabase;
 use pocketmine\level\Level;
 use pocketmine\Player;
+use BlockHorizons\PerWorldPlayer\events\PerWorldPlayerDataInjectEvent;
+use BlockHorizons\PerWorldPlayer\events\PerWorldPlayerDataSaveEvent;
 
 final class WorldInstance{
 
@@ -25,13 +27,17 @@ final class WorldInstance{
 	/** @var PlayerManager */
 	private $player_manager;
 
+	/** @var \Logger */
+	private $logger;
+
 	/** @var string|null */
 	private $bundle;
 
-	public function __construct(Level $level, WorldDatabase $database, PlayerManager $player_manager, ?string $bundle){
+	public function __construct(Level $level, WorldDatabase $database, PlayerManager $player_manager, \Logger $logger, ?string $bundle){
 		$this->name = $level->getFolderName();
 		$this->database = $database;
 		$this->player_manager = $player_manager;
+		$this->logger = $logger;
 		$this->bundle = $bundle;
 	}
 
@@ -51,7 +57,11 @@ final class WorldInstance{
 					$instance->wait($this);
 					$this->database->load($this, $player, function(PlayerWorldData $data) use($player, $instance) : void{
 						if($player->isOnline()){
-							$data->inject($player);
+							$ev = new PerWorldPlayerDataInjectEvent($player, $this, $data);
+							$ev->call();
+							if(!$ev->isCancelled()){
+								$ev->getPlayerWorldData()->inject($player);
+							}
 							$instance->notify($this);
 						}
 					});
@@ -61,14 +71,27 @@ final class WorldInstance{
 	}
 
 	public function onPlayerExit(Player $player, ?WorldInstance $to_world = null, bool $quit = false) : void{
-		if($to_world === null || !self::haveSameBundles($this, $to_world)){
-			$this->save($player, PlayerWorldData::fromPlayer($player), false, $quit);
+		if($to_world === null || !self::haveSameBundles($this, $to_world)){ //TODO: currently plugins cannot bypass this
+			$this->save($player, PlayerWorldData::fromPlayer($player), $quit ? PerWorldPlayerDataSaveEvent::CAUSE_PLAYER_QUIT : PerWorldPlayerDataSaveEvent::CAUSE_WORLD_CHANGE);
 		}
 	}
 
-	public function save(Player $player, PlayerWorldData $data, bool $force = false, bool $quit = false) : void{
-		if($force || !$player->hasPermission("per-world-player.bypass")){
-			$this->database->save($this, $player, $data, $quit);
+	public function save(Player $player, PlayerWorldData $data, int $cause = PerWorldPlayerDataSaveEvent::CAUSE_CUSTOM, bool $force = false) : void{
+		$ev = new PerWorldPlayerDataSaveEvent($player, $this, $data, $cause);
+		if(!$force && $player->hasPermission("per-world-player.bypass")){
+			$ev->setCancelled();
+		}
+		$ev->call();
+		if(!$ev->isCancelled()){
+			$this->database->save($this, $player, $ev->getPlayerWorldData(), $cause, function(bool $success) use($player) : void{
+				if($success){
+					$this->logger->debug("Data successfully saved for player {$player->getName()} in world {$this->getName()}.");
+				}else{
+					$this->logger->error("Could not save data for player {$player->getName()} in world {$this->getName()}.");
+				}
+			});
+		}else{
+			$this->logger->debug("Data save cancelled for player {$player->getName()} in world {$this->getName()}.");
 		}
 	}
 }
