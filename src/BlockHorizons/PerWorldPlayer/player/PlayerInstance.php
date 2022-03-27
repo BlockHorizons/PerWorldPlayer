@@ -13,6 +13,7 @@ use Logger;
 use pocketmine\player\Player;
 use PrefixedLogger;
 use function array_key_first;
+use function array_rand;
 use function assert;
 use function count;
 use function spl_object_id;
@@ -99,9 +100,7 @@ final class PlayerInstance{
 
 	private function onWorldDataLoad(string $world_name, PlayerWorldData $data) : void{
 		if(!isset($this->world_data[$world_name]) && count($this->world_data) === self::WORLD_DATA_CACHE_SIZE){
-			$removed_world_name = array_key_first($this->world_data);
-			assert($removed_world_name !== null);
-			unset($this->world_data[$removed_world_name]);
+			unset($this->world_data[array_rand($this->world_data)]);
 		}
 
 		$this->world_data[$world_name] = $data;
