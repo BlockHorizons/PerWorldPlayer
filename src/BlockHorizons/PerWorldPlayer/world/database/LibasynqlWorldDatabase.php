@@ -22,8 +22,7 @@ abstract class LibasynqlWorldDatabase implements WorldDatabase{
 		return chr(strlen($name)) . $name . chr($bundle !== null ? 1 : 0) . ($bundle ?? $world->getName());
 	}
 
-	/** @var DataConnector */
-	private $database;
+	private DataConnector $database;
 
 	public function __construct(Loader $plugin){
 		$this->database = libasynql::create($plugin, $plugin->getConfig()->get("Database"), ["sqlite" => "db/sqlite.sql", "mysql" => "db/mysql.sql"]);

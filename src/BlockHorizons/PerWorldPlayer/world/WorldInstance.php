@@ -9,6 +9,7 @@ use BlockHorizons\PerWorldPlayer\world\data\PlayerWorldData;
 use BlockHorizons\PerWorldPlayer\world\database\WorldDatabase;
 use BlockHorizons\PerWorldPlayer\events\PerWorldPlayerDataInjectEvent;
 use BlockHorizons\PerWorldPlayer\events\PerWorldPlayerDataSaveEvent;
+use Logger;
 use pocketmine\player\Player;
 use pocketmine\world\World;
 
@@ -18,22 +19,13 @@ final class WorldInstance{
 		return $a->bundle !== null && $b->bundle !== null && $a->bundle === $b->bundle;
 	}
 
-	/** @var string */
-	private $name;
+	private string $name;
+	private WorldDatabase $database;
+	private PlayerManager $player_manager;
+	private Logger $logger;
+	private ?string $bundle;
 
-	/** @var WorldDatabase */
-	private $database;
-
-	/** @var PlayerManager */
-	private $player_manager;
-
-	/** @var \Logger */
-	private $logger;
-
-	/** @var string|null */
-	private $bundle;
-
-	public function __construct(World $world, WorldDatabase $database, PlayerManager $player_manager, \Logger $logger, ?string $bundle){
+	public function __construct(World $world, WorldDatabase $database, PlayerManager $player_manager, Logger $logger, ?string $bundle){
 		$this->name = $world->getFolderName();
 		$this->database = $database;
 		$this->player_manager = $player_manager;

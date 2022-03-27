@@ -10,7 +10,7 @@ use pocketmine\player\Player;
 final class PlayerManager{
 
 	/** @var PlayerInstance[] */
-	private $players = [];
+	private array $players = [];
 
 	public function __construct(Loader $plugin){
 		$plugin->getServer()->getPluginManager()->registerEvents(new PlayerListener($this), $plugin);

@@ -11,6 +11,7 @@ use BlockHorizons\PerWorldPlayer\world\bundle\BundleManager;
 use BlockHorizons\PerWorldPlayer\world\data\PlayerWorldData;
 use BlockHorizons\PerWorldPlayer\world\database\WorldDatabase;
 use BlockHorizons\PerWorldPlayer\world\database\WorldDatabaseFactory;
+use Logger;
 use pocketmine\scheduler\ClosureTask;
 use pocketmine\scheduler\TaskScheduler;
 use pocketmine\Server;
@@ -18,23 +19,14 @@ use pocketmine\world\World;
 
 final class WorldManager{
 
-	/** @var BundleManager */
-	private $bundle;
-
-	/** @var WorldDatabase */
-	private $database;
-
-	/** @var PlayerManager */
-	private $player_manager;
-
-	/** @var TaskScheduler */
-	private $scheduler;
-
-	/** @var \Logger */
-	private $logger;
+	private BundleManager $bundle;
+	private WorldDatabase $database;
+	private PlayerManager $player_manager;
+	private TaskScheduler $scheduler;
+	private Logger $logger;
 
 	/** @var WorldInstance[] */
-	private $worlds = [];
+	private array $worlds = [];
 
 	public function __construct(Loader $plugin){
 		$this->bundle = new BundleManager($plugin->getConfig()->get("Bundled-Worlds"));

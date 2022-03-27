@@ -7,10 +7,10 @@ namespace BlockHorizons\PerWorldPlayer\world\bundle;
 final class BundleManager{
 
 	/** @var Bundle[] */
-	private $bundles = [];
+	private array $bundles = [];
 
 	/** @var string[] */
-	private $bundled_worlds = [];
+	private array $bundled_worlds = [];
 
 	/**
 	 * @param mixed[] $bundled_worlds_configuration

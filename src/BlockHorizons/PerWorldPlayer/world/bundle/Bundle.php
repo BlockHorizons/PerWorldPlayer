@@ -7,7 +7,7 @@ namespace BlockHorizons\PerWorldPlayer\world\bundle;
 final class Bundle{
 
 	/** @var array<string, string> */
-	private $worlds = [];
+	private array $worlds = [];
 
 	public function __construct(){
 	}

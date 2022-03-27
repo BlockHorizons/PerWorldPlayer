@@ -35,10 +35,6 @@ final class WorldDatabaseUtils{
 	 */
 	public static function serializeInventoryContents(array $contents) : string{
 		$tag = new ListTag([], NBT::TAG_Compound);
-		/**
-		 * @var int $slot
-		 * @var Item $item
-		 */
 		foreach($contents as $slot => $item){
 			$tag->push($item->nbtSerialize($slot));
 		}
@@ -74,7 +70,6 @@ final class WorldDatabaseUtils{
 	public static function serializeEffects(array $effects) : string{
 		$effect_id_map = EffectIdMap::getInstance();
 		$tag = new ListTag([], NBT::TAG_Compound);
-		/** @var EffectInstance $effect */
 		foreach($effects as $effect){
 			$tag->push(CompoundTag::create()
 				->setByte("Id", $effect_id_map->toId($effect->getType()))

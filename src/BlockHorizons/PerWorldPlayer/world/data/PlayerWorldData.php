@@ -58,40 +58,10 @@ final class PlayerWorldData{
 		);
 	}
 
-	/** @var Item[] */
-	public $armor_inventory;
-
-	/** @var Item[] */
-	public $inventory;
-
-	/** @var Item[] */
-	public $ender_inventory;
-
-	/** @var float */
-	public $health;
-
-	/** @var EffectInstance[] */
-	public $effects;
-
-	/** @var GameMode */
-	public $gamemode;
-
-	/** @var int */
-	public $experience;
-
-	/** @var float */
-	public $food;
-
-	/** @var float */
-	public $exhaustion;
-
-	/** @var float */
-	public $saturation;
-
 	/**
-	 * @param Item[] $armor
+	 * @param Item[] $armor_inventory
 	 * @param Item[] $inventory
-	 * @param Item[] $ender
+	 * @param Item[] $ender_inventory
 	 * @param float $health
 	 * @param EffectInstance[] $effects
 	 * @param GameMode $gamemode
@@ -100,33 +70,22 @@ final class PlayerWorldData{
 	 * @param float $exhaustion
 	 * @param float $saturation
 	 *
-	 * @phpstan-param array<int, Item> $armor
+	 * @phpstan-param array<int, Item> $armor_inventory
 	 * @phpstan-param array<int, Item> $inventory
-	 * @phpstan-param array<int, Item> $ender
+	 * @phpstan-param array<int, Item> $ender_inventory
 	 */
 	public function __construct(
-		array $armor,
-		array $inventory,
-		array $ender,
-		float $health,
-		array $effects,
-		GameMode $gamemode,
-		int $experience,
-		float $food,
-		float $exhaustion,
-		float $saturation
-	){
-		$this->armor_inventory = $armor;
-		$this->inventory = $inventory;
-		$this->ender_inventory = $ender;
-		$this->health = $health;
-		$this->effects = $effects;
-		$this->gamemode = $gamemode;
-		$this->experience = $experience;
-		$this->food = $food;
-		$this->exhaustion = $exhaustion;
-		$this->saturation = $saturation;
-	}
+		public array $armor_inventory,
+		public array $inventory,
+		public array $ender_inventory,
+		public float $health,
+		public array $effects,
+		public GameMode $gamemode,
+		public int $experience,
+		public float $food,
+		public float $exhaustion,
+		public float $saturation
+	){}
 
 	public function inject(Player $player) : void{
 		SaveDataManager::inject($this, $player);

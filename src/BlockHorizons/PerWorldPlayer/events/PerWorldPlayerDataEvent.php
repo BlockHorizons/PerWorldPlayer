@@ -11,20 +11,11 @@ use pocketmine\player\Player;
 
 abstract class PerWorldPlayerDataEvent extends Event{
 
-	/** @var Player */
-	private $player;
-
-	/** @var WorldInstance */
-	private $worldInstance;
-
-	/** @var PlayerWorldData */
-	private $playerWorldData;
-
-	public function __construct(Player $player, WorldInstance $worldInstance, PlayerWorldData $playerWorldData){
-		$this->player = $player;
-		$this->worldInstance = $worldInstance;
-		$this->playerWorldData = $playerWorldData;
-	}
+	public function __construct(
+		private Player $player,
+		private WorldInstance $worldInstance,
+		private PlayerWorldData $playerWorldData
+	){}
 
 	public function getPlayer() : Player{
 		return $this->player;

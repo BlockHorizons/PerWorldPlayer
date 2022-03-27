@@ -11,8 +11,12 @@ use ReflectionClass;
 
 final class SaveDataManager{
 
-	/** @var Closure[] */
-	private static $injectors = [];
+	/**
+	 * @var Closure[]
+	 *
+	 * @phpstan-var array<Closure(PlayerWorldData $data, Player $player) : void>
+	 */
+	private static array $injectors = [];
 
 	public static function init(Loader $loader) : void{
 		self::registerInjector(SaveDataIds::NORMAL_INVENTORY, static function(PlayerWorldData $data, Player $player) : void{ $player->getInventory()->setContents($data->inventory); });
@@ -49,7 +53,8 @@ final class SaveDataManager{
 	/**
 	 * @param string $identifier
 	 * @param Closure $injector
-	 * @phpstan=param Closure(PlayerWorldData $data, Player $player) : void $injector
+	 *
+	 * @phpstan-param Closure(PlayerWorldData $data, Player $player) : void $injector
 	 */
 	private static function registerInjector(string $identifier, Closure $injector) : void{
 		self::$injectors[$identifier] = $injector;

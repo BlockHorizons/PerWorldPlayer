@@ -15,8 +15,7 @@ use pocketmine\Server;
 
 final class WorldListener implements Listener{
 
-	/** @var WorldManager */
-	private $manager;
+	private WorldManager $manager;
 
 	public function __construct(WorldManager $manager){
 		$this->manager = $manager;

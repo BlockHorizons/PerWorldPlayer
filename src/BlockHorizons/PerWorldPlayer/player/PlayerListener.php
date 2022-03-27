@@ -18,12 +18,9 @@ use pocketmine\player\Player;
 
 final class PlayerListener implements Listener{
 
-	/** @var PlayerManager */
-	private $manager;
-
-	public function __construct(PlayerManager $manager){
-		$this->manager = $manager;
-	}
+	public function __construct(
+		private PlayerManager $manager
+	){}
 
 	private function shouldCancelEvent(Player $player) : bool{
 		return $this->manager->getNullable($player)?->isWaiting() ?? false;

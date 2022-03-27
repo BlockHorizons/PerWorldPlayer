@@ -11,11 +11,8 @@ use pocketmine\plugin\PluginBase;
 
 final class Loader extends PluginBase{
 
-	/** @var PlayerManager */
-	private $player_manager;
-
-	/** @var WorldManager */
-	private $world_manager;
+	private PlayerManager $player_manager;
+	private WorldManager $world_manager;
 
 	protected function onEnable() : void{
 		SaveDataManager::init($this);
