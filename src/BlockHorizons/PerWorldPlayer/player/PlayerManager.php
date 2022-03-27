@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace BlockHorizons\PerWorldPlayer\player;
 
 use BlockHorizons\PerWorldPlayer\Loader;
-use pocketmine\Player;
+use pocketmine\player\Player;
 
 final class PlayerManager{
 

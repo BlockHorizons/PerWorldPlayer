@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace BlockHorizons\PerWorldPlayer\world\data;
 
-use pocketmine\entity\EffectInstance;
+use pocketmine\entity\effect\EffectInstance;
 use pocketmine\item\Item;
-use pocketmine\Player;
+use pocketmine\player\GameMode;
+use pocketmine\player\Player;
 use pocketmine\Server;
 
 final class PlayerWorldData{
@@ -15,8 +16,18 @@ final class PlayerWorldData{
 		return self::emptyWithInventory([], [], []);
 	}
 
+	/**
+	 * @param Item[] $armor
+	 * @param Item[] $inventory
+	 * @param Item[] $ender
+	 * @return self
+	 *
+	 * @phpstan-param array<int, Item> $armor
+	 * @phpstan-param array<int, Item> $inventory
+	 * @phpstan-param array<int, Item> $ender
+	 */
 	public static function emptyWithInventory(array $armor, array $inventory, array $ender) : PlayerWorldData{
-		return new self($armor, $inventory, $ender, 20.0, [], Server::getInstance()->getDefaultGamemode(), 0, 20.0, 0.0, 5.0);
+		return new self($armor, $inventory, $ender, 20.0, [], Server::getInstance()->getGamemode(), 0, 20.0, 0.0, 5.0);
 	}
 
 	public static function fromPlayer(Player $player) : PlayerWorldData{
@@ -24,26 +35,26 @@ final class PlayerWorldData{
 			return self::emptyWithInventory( // PlayerDeathEvent::getKeepInventory() may not wipe their inventory
 				$player->getArmorInventory()->getContents(),
 				$player->getInventory()->getContents(),
-				$player->getEnderChestInventory()->getContents()
+				$player->getEnderInventory()->getContents()
 			);
 		}
 
 		$effects = [];
-		foreach($player->getEffects() as $effect){
+		foreach($player->getEffects()->all() as $effect){
 			$effects[] = new EffectInstance($effect->getType(), $effect->getDuration(), $effect->getAmplifier(), $effect->isVisible(), $effect->isAmbient(), $effect->getColor());
 		}
 
 		return new self(
 			$player->getArmorInventory()->getContents(),
 			$player->getInventory()->getContents(),
-			$player->getEnderChestInventory()->getContents(),
+			$player->getEnderInventory()->getContents(),
 			$player->getHealth(),
 			$effects,
 			$player->getGamemode(),
-			$player->getCurrentTotalXp(),
-			$player->getFood(),
-			$player->getExhaustion(),
-			$player->getSaturation()
+			$player->getXpManager()->getCurrentTotalXp(),
+			$player->getHungerManager()->getFood(),
+			$player->getHungerManager()->getExhaustion(),
+			$player->getHungerManager()->getSaturation()
 		);
 	}
 
@@ -62,7 +73,7 @@ final class PlayerWorldData{
 	/** @var EffectInstance[] */
 	public $effects;
 
-	/** @var int */
+	/** @var GameMode */
 	public $gamemode;
 
 	/** @var int */
@@ -77,13 +88,29 @@ final class PlayerWorldData{
 	/** @var float */
 	public $saturation;
 
+	/**
+	 * @param Item[] $armor
+	 * @param Item[] $inventory
+	 * @param Item[] $ender
+	 * @param float $health
+	 * @param EffectInstance[] $effects
+	 * @param GameMode $gamemode
+	 * @param int $experience
+	 * @param float $food
+	 * @param float $exhaustion
+	 * @param float $saturation
+	 *
+	 * @phpstan-param array<int, Item> $armor
+	 * @phpstan-param array<int, Item> $inventory
+	 * @phpstan-param array<int, Item> $ender
+	 */
 	public function __construct(
 		array $armor,
 		array $inventory,
 		array $ender,
 		float $health,
 		array $effects,
-		int $gamemode,
+		GameMode $gamemode,
 		int $experience,
 		float $food,
 		float $exhaustion,

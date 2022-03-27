@@ -6,7 +6,7 @@ namespace BlockHorizons\PerWorldPlayer\world\data;
 
 use BlockHorizons\PerWorldPlayer\Loader;
 use Closure;
-use pocketmine\Player;
+use pocketmine\player\Player;
 use ReflectionClass;
 
 final class SaveDataManager{
@@ -17,14 +17,20 @@ final class SaveDataManager{
 	public static function init(Loader $loader) : void{
 		self::registerInjector(SaveDataIds::NORMAL_INVENTORY, static function(PlayerWorldData $data, Player $player) : void{ $player->getInventory()->setContents($data->inventory); });
 		self::registerInjector(SaveDataIds::ARMOR_INVENTORY, static function(PlayerWorldData $data, Player $player) : void{ $player->getArmorInventory()->setContents($data->armor_inventory); });
-		self::registerInjector(SaveDataIds::ENDER_INVENTORY, static function(PlayerWorldData $data, Player $player) : void{ $player->getEnderChestInventory()->setContents($data->ender_inventory); });
+		self::registerInjector(SaveDataIds::ENDER_INVENTORY, static function(PlayerWorldData $data, Player $player) : void{ $player->getEnderInventory()->setContents($data->ender_inventory); });
 		self::registerInjector(SaveDataIds::HEALTH, static function(PlayerWorldData $data, Player $player) : void{ $player->setHealth($data->health); });
-		self::registerInjector(SaveDataIds::EFFECTS, static function(PlayerWorldData $data, Player $player) : void{ $player->removeAllEffects(); foreach($data->effects as $effect) { $player->addEffect($effect); } });
+		self::registerInjector(SaveDataIds::EFFECTS, static function(PlayerWorldData $data, Player $player) : void{
+			$effects = $player->getEffects();
+			$effects->clear();
+			foreach($data->effects as $effect) {
+				$effects->add($effect);
+			}
+		});
 		self::registerInjector(SaveDataIds::GAMEMODE, static function(PlayerWorldData $data, Player $player) : void{ $player->setGamemode($data->gamemode); });
-		self::registerInjector(SaveDataIds::EXPERIENCE, static function(PlayerWorldData $data, Player $player) : void{ $player->setCurrentTotalXp($data->experience); });
-		self::registerInjector(SaveDataIds::FOOD_HUNGER, static function(PlayerWorldData $data, Player $player) : void{ $player->setFood($data->food); });
-		self::registerInjector(SaveDataIds::FOOD_SATURATION, static function(PlayerWorldData $data, Player $player) : void{ $player->setSaturation($data->saturation); });
-		self::registerInjector(SaveDataIds::FOOD_EXHAUSTION, static function(PlayerWorldData $data, Player $player) : void{ $player->setExhaustion($data->exhaustion); });
+		self::registerInjector(SaveDataIds::EXPERIENCE, static function(PlayerWorldData $data, Player $player) : void{ $player->getXpManager()->setCurrentTotalXp($data->experience); });
+		self::registerInjector(SaveDataIds::FOOD_HUNGER, static function(PlayerWorldData $data, Player $player) : void{ $player->getHungerManager()->setFood($data->food); });
+		self::registerInjector(SaveDataIds::FOOD_SATURATION, static function(PlayerWorldData $data, Player $player) : void{ $player->getHungerManager()->setSaturation($data->saturation); });
+		self::registerInjector(SaveDataIds::FOOD_EXHAUSTION, static function(PlayerWorldData $data, Player $player) : void{ $player->getHungerManager()->setExhaustion($data->exhaustion); });
 
 		$config = $loader->getConfig();
 		$disabled = [];

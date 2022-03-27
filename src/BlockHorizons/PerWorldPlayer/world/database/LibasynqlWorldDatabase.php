@@ -8,7 +8,8 @@ use BlockHorizons\PerWorldPlayer\Loader;
 use BlockHorizons\PerWorldPlayer\world\data\PlayerWorldData;
 use BlockHorizons\PerWorldPlayer\world\WorldInstance;
 use Closure;
-use pocketmine\Player;
+use pocketmine\data\java\GameModeIdMap;
+use pocketmine\player\Player;
 use poggit\libasynql\DataConnector;
 use poggit\libasynql\libasynql;
 use poggit\libasynql\SqlError;
@@ -52,7 +53,7 @@ abstract class LibasynqlWorldDatabase implements WorldDatabase{
 					WorldDatabaseUtils::unserializeInventoryContents($this->fetchBinaryString($ender_inventory)),
 					$health,
 					WorldDatabaseUtils::unserializeEffects($this->fetchBinaryString($effects)),
-					$gamemode,
+					GameModeIdMap::getInstance()->fromId($gamemode),
 					$experience,
 					$food,
 					$exhaustion,
@@ -74,7 +75,7 @@ abstract class LibasynqlWorldDatabase implements WorldDatabase{
 				"ender_inventory" => $this->saveBinaryString(WorldDatabaseUtils::serializeInventoryContents($data->ender_inventory)),
 				"health" => $data->health,
 				"effects" => $this->saveBinaryString(WorldDatabaseUtils::serializeEffects($data->effects)),
-				"gamemode" => $data->gamemode,
+				"gamemode" => GameModeIdMap::getInstance()->toId($data->gamemode),
 				"experience" => $data->experience,
 				"food" => $data->food,
 				"exhaustion" => $data->exhaustion,

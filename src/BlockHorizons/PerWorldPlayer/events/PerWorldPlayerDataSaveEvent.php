@@ -6,9 +6,11 @@ namespace BlockHorizons\PerWorldPlayer\events;
 use BlockHorizons\PerWorldPlayer\world\data\PlayerWorldData;
 use BlockHorizons\PerWorldPlayer\world\WorldInstance;
 use pocketmine\event\Cancellable;
-use pocketmine\Player;
+use pocketmine\event\CancellableTrait;
+use pocketmine\player\Player;
 
 class PerWorldPlayerDataSaveEvent extends PerWorldPlayerDataEvent implements Cancellable{
+	use CancellableTrait;
 
 	public const CAUSE_WORLD_CHANGE = 0;
 	public const CAUSE_PLAYER_QUIT = 1;

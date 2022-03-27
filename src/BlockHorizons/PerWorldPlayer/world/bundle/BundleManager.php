@@ -12,6 +12,11 @@ final class BundleManager{
 	/** @var string[] */
 	private $bundled_worlds = [];
 
+	/**
+	 * @param mixed[] $bundled_worlds_configuration
+	 *
+	 * @phpstan-param array<string, array<string>> $bundled_worlds_configuration
+	 */
 	public function __construct(array $bundled_worlds_configuration){
 		/**
 		 * @var string $bundle

@@ -4,25 +4,27 @@ declare(strict_types=1);
 
 namespace BlockHorizons\PerWorldPlayer\world\database;
 
-use pocketmine\entity\Effect;
-use pocketmine\entity\EffectInstance;
+use pocketmine\data\bedrock\EffectIdMap;
+use pocketmine\entity\effect\EffectInstance;
 use pocketmine\item\Item;
-use pocketmine\nbt\BigEndianNBTStream;
+use pocketmine\nbt\BigEndianNbtSerializer;
 use pocketmine\nbt\NBT;
-use pocketmine\nbt\tag\ByteTag;
 use pocketmine\nbt\tag\CompoundTag;
-use pocketmine\nbt\tag\IntTag;
 use pocketmine\nbt\tag\ListTag;
+use pocketmine\nbt\TreeRoot;
 use pocketmine\utils\Binary;
+use function zlib_decode;
+use function zlib_encode;
+use const ZLIB_ENCODING_GZIP;
 
 final class WorldDatabaseUtils{
 
 	private const TAG_EFFECTS = "Effects";
 	private const TAG_CONTENTS = "Contents";
 
-	private static function getSerializer() : BigEndianNBTStream{
+	private static function getSerializer() : BigEndianNbtSerializer{
 		static $serializer = null;
-		return $serializer ?? $serializer = new BigEndianNBTStream();
+		return $serializer ?? $serializer = new BigEndianNbtSerializer();
 	}
 
 	/**
@@ -32,7 +34,7 @@ final class WorldDatabaseUtils{
 	 * @return string
 	 */
 	public static function serializeInventoryContents(array $contents) : string{
-		$tag = new ListTag(self::TAG_CONTENTS, [], NBT::TAG_Compound);
+		$tag = new ListTag([], NBT::TAG_Compound);
 		/**
 		 * @var int $slot
 		 * @var Item $item
@@ -41,8 +43,8 @@ final class WorldDatabaseUtils{
 			$tag->push($item->nbtSerialize($slot));
 		}
 		$nbt = new CompoundTag();
-		$nbt->setTag($tag);
-		return self::getSerializer()->writeCompressed($nbt);
+		$nbt->setTag(self::TAG_CONTENTS, $tag);
+		return zlib_encode(self::getSerializer()->write(new TreeRoot($nbt)), ZLIB_ENCODING_GZIP);
 	}
 
 	/**
@@ -53,8 +55,7 @@ final class WorldDatabaseUtils{
 	 * @return array<int, Item>
 	 */
 	public static function unserializeInventoryContents(string $serialized) : array{
-		$nbt = self::getSerializer()->readCompressed($serialized);
-		assert($nbt instanceof CompoundTag);
+		$nbt = self::getSerializer()->read(zlib_decode($serialized))->mustGetCompoundTag();
 
 		$contents = [];
 
@@ -71,20 +72,21 @@ final class WorldDatabaseUtils{
 	 * @return string
 	 */
 	public static function serializeEffects(array $effects) : string{
-		$tag = new ListTag(self::TAG_EFFECTS, [], NBT::TAG_Compound);
+		$effect_id_map = EffectIdMap::getInstance();
+		$tag = new ListTag([], NBT::TAG_Compound);
 		/** @var EffectInstance $effect */
 		foreach($effects as $effect){
-			$tag->push(new CompoundTag("", [
-				new ByteTag("Id", $effect->getId()),
-				new ByteTag("Amplifier", Binary::signByte($effect->getAmplifier())),
-				new IntTag("Duration", $effect->getDuration()),
-				new ByteTag("Ambient", $effect->isAmbient() ? 1 : 0),
-				new ByteTag("ShowParticles", $effect->isVisible() ? 1 : 0)
-			]));
+			$tag->push(CompoundTag::create()
+				->setByte("Id", $effect_id_map->toId($effect->getType()))
+				->setByte("Amplifier", Binary::signByte($effect->getAmplifier()))
+				->setInt("Duration", $effect->getDuration())
+				->setByte("Ambient", $effect->isAmbient() ? 1 : 0)
+				->setByte("ShowParticles", $effect->isVisible() ? 1 : 0)
+			);
 		}
 		$nbt = new CompoundTag();
-		$nbt->setTag($tag);
-		return self::getSerializer()->writeCompressed($nbt);
+		$nbt->setTag(self::TAG_EFFECTS, $tag);
+		return zlib_encode(self::getSerializer()->write(new TreeRoot($nbt)), ZLIB_ENCODING_GZIP);
 	}
 
 	/**
@@ -92,14 +94,14 @@ final class WorldDatabaseUtils{
 	 * @return EffectInstance[]
 	 */
 	public static function unserializeEffects(string $serialized) : array{
-		$nbt = self::getSerializer()->readCompressed($serialized);
-		assert($nbt instanceof CompoundTag);
+		$nbt = self::getSerializer()->read(zlib_decode($serialized))->mustGetCompoundTag();
 
+		$effect_id_map = EffectIdMap::getInstance();
 		$effects = [];
 
 		/** @var CompoundTag $entry */
 		foreach($nbt->getListTag(self::TAG_EFFECTS) as $entry){
-			$effect = Effect::getEffect($entry->getByte("Id"));
+			$effect = $effect_id_map->fromId($entry->getByte("Id"));
 			if($effect === null){
 				continue;
 			}

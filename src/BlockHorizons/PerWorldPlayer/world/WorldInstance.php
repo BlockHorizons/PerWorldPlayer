@@ -7,10 +7,10 @@ namespace BlockHorizons\PerWorldPlayer\world;
 use BlockHorizons\PerWorldPlayer\player\PlayerManager;
 use BlockHorizons\PerWorldPlayer\world\data\PlayerWorldData;
 use BlockHorizons\PerWorldPlayer\world\database\WorldDatabase;
-use pocketmine\level\Level;
-use pocketmine\Player;
 use BlockHorizons\PerWorldPlayer\events\PerWorldPlayerDataInjectEvent;
 use BlockHorizons\PerWorldPlayer\events\PerWorldPlayerDataSaveEvent;
+use pocketmine\player\Player;
+use pocketmine\world\World;
 
 final class WorldInstance{
 
@@ -33,7 +33,7 @@ final class WorldInstance{
 	/** @var string|null */
 	private $bundle;
 
-	public function __construct(Level $level, WorldDatabase $database, PlayerManager $player_manager, \Logger $logger, ?string $bundle){
+	public function __construct(World $level, WorldDatabase $database, PlayerManager $player_manager, \Logger $logger, ?string $bundle){
 		$this->name = $level->getFolderName();
 		$this->database = $database;
 		$this->player_manager = $player_manager;
@@ -79,7 +79,7 @@ final class WorldInstance{
 	public function save(Player $player, PlayerWorldData $data, int $cause = PerWorldPlayerDataSaveEvent::CAUSE_CUSTOM, bool $force = false) : void{
 		$ev = new PerWorldPlayerDataSaveEvent($player, $this, $data, $cause);
 		if(!$force && $player->hasPermission("per-world-player.bypass")){
-			$ev->setCancelled();
+			$ev->cancel();
 		}
 		$ev->call();
 		if(!$ev->isCancelled()){

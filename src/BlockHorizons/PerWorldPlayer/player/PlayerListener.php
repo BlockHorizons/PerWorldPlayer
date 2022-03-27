@@ -14,7 +14,7 @@ use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerInteractEvent;
 use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\event\player\PlayerQuitEvent;
-use pocketmine\Player;
+use pocketmine\player\Player;
 
 final class PlayerListener implements Listener{
 
@@ -25,14 +25,8 @@ final class PlayerListener implements Listener{
 		$this->manager = $manager;
 	}
 
-	private function cancelIfWaiting(Player $player, Cancellable $event) : bool{
-		$instance = $this->manager->getNullable($player);
-		if($instance !== null && $instance->isWaiting()){
-			$event->setCancelled();
-			return true;
-		}
-
-		return false;
+	private function shouldCancelEvent(Player $player) : bool{
+		return $this->manager->getNullable($player)?->isWaiting() ?? false;
 	}
 
 	/**
@@ -54,45 +48,48 @@ final class PlayerListener implements Listener{
 	/**
 	 * @param PlayerInteractEvent $event
 	 * @priority LOW
-	 * @ignoreCancelled true
 	 */
 	public function onPlayerInteract(PlayerInteractEvent $event) : void{
-		$this->cancelIfWaiting($event->getPlayer(), $event);
+		if($this->shouldCancelEvent($event->getPlayer())){
+			$event->cancel();
+		}
 	}
 
 	/**
 	 * @param BlockPlaceEvent $event
 	 * @priority LOW
-	 * @ignoreCancelled true
 	 */
 	public function onBlockPlace(BlockPlaceEvent $event) : void{
-		$this->cancelIfWaiting($event->getPlayer(), $event);
+		if($this->shouldCancelEvent($event->getPlayer())){
+			$event->cancel();
+		}
 	}
 
 	/**
 	 * @param BlockBreakEvent $event
 	 * @priority LOW
-	 * @ignoreCancelled true
 	 */
 	public function onBlockBreak(BlockBreakEvent $event) : void{
-		$this->cancelIfWaiting($event->getPlayer(), $event);
+		if($this->shouldCancelEvent($event->getPlayer())){
+			$event->cancel();
+		}
 	}
 
 	/**
 	 * @param EntityDamageEvent $event
 	 * @priority LOW
-	 * @ignoreCancelled true
 	 */
 	public function onEntityDamage(EntityDamageEvent $event) : void{
 		$victim = $event->getEntity();
-		if($victim instanceof Player && $this->cancelIfWaiting($victim, $event)){
+		if($victim instanceof Player && $this->shouldCancelEvent($victim)){
+			$event->cancel();
 			return;
 		}
 
 		if($event instanceof EntityDamageByEntityEvent){
 			$damager = $event->getDamager();
-			if($damager instanceof Player){
-				$this->cancelIfWaiting($damager, $event);
+			if($damager instanceof Player && $this->shouldCancelEvent($damager)){
+				$event->cancel();
 			}
 		}
 	}
@@ -100,9 +97,10 @@ final class PlayerListener implements Listener{
 	/**
 	 * @param InventoryTransactionEvent $event
 	 * @priority LOW
-	 * @ignoreCancelled true
 	 */
 	public function onInventoryTransaction(InventoryTransactionEvent $event) : void{
-		$this->cancelIfWaiting($event->getTransaction()->getSource(), $event);
+		if($this->shouldCancelEvent($event->getTransaction()->getSource())){
+			$event->cancel();
+		}
 	}
 }

@@ -17,13 +17,13 @@ final class Loader extends PluginBase{
 	/** @var WorldManager */
 	private $world_manager;
 
-	public function onEnable() : void{
+	protected function onEnable() : void{
 		SaveDataManager::init($this);
 		$this->player_manager = new PlayerManager($this);
 		$this->world_manager = new WorldManager($this);
 	}
 
-	public function onDisable() : void{
+	protected function onDisable() : void{
 		$this->world_manager->close();
 	}
 

@@ -11,10 +11,10 @@ use BlockHorizons\PerWorldPlayer\world\bundle\BundleManager;
 use BlockHorizons\PerWorldPlayer\world\data\PlayerWorldData;
 use BlockHorizons\PerWorldPlayer\world\database\WorldDatabase;
 use BlockHorizons\PerWorldPlayer\world\database\WorldDatabaseFactory;
-use pocketmine\level\Level;
 use pocketmine\scheduler\ClosureTask;
 use pocketmine\scheduler\TaskScheduler;
 use pocketmine\Server;
+use pocketmine\world\World;
 
 final class WorldManager{
 
@@ -46,7 +46,7 @@ final class WorldManager{
 	}
 
 	public function close() : void{
-		foreach(Server::getInstance()->getLevels() as $world){
+		foreach(Server::getInstance()->getWorldManager()->getWorlds() as $world){
 			$instance = $this->get($world);
 			foreach($world->getPlayers() as $player){
 				$instance->save($player, PlayerWorldData::fromPlayer($player), PerWorldPlayerDataSaveEvent::CAUSE_PLAYER_QUIT);
@@ -56,23 +56,23 @@ final class WorldManager{
 		$this->database->close();
 	}
 
-	public function onWorldLoad(Level $world) : void{
+	public function onWorldLoad(World $world) : void{
 		$this->worlds[$world->getId()] = new WorldInstance($world, $this->database, $this->player_manager, $this->logger, $this->bundle->getBundle($world->getFolderName()));
 	}
 
-	public function onWorldUnload(Level $world, bool $instant = false) : void{
+	public function onWorldUnload(World $world, bool $instant = false) : void{
 		if($instant){
 			unset($this->worlds[$world->getId()]);
 		}else{
-			$this->scheduler->scheduleDelayedTask(new ClosureTask(function(int $currentTick) use($world) : void{
-				if($world->isClosed()){
+			$this->scheduler->scheduleDelayedTask(new ClosureTask(function() use($world) : void{
+				if(!$world->isLoaded()){
 					$this->onWorldUnload($world, true);
 				}
 			}), 1);
 		}
 	}
 
-	public function get(Level $world) : WorldInstance{
+	public function get(World $world) : WorldInstance{
 		return $this->worlds[$world->getId()];
 	}
 }

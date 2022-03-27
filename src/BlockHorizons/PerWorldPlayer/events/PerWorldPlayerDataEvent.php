@@ -7,9 +7,10 @@ namespace BlockHorizons\PerWorldPlayer\events;
 use BlockHorizons\PerWorldPlayer\world\data\PlayerWorldData;
 use BlockHorizons\PerWorldPlayer\world\WorldInstance;
 use pocketmine\event\Event;
-use pocketmine\Player;
+use pocketmine\player\Player;
 
 abstract class PerWorldPlayerDataEvent extends Event{
+
 	/** @var Player */
 	private $player;
 

@@ -7,7 +7,7 @@ namespace BlockHorizons\PerWorldPlayer\world\database;
 use BlockHorizons\PerWorldPlayer\world\data\PlayerWorldData;
 use BlockHorizons\PerWorldPlayer\world\WorldInstance;
 use Closure;
-use pocketmine\Player;
+use pocketmine\player\Player;
 
 interface WorldDatabase{
 
