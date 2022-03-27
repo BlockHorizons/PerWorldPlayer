@@ -37,26 +37,30 @@ final class WorldInstance{
 	}
 
 	public function onPlayerEnter(Player $player, ?WorldInstance $from_world = null) : void{
-		if(!$player->hasPermission("per-world-player.bypass")){
-			if($from_world === null || !self::haveSameBundles($this, $from_world)){
-				$instance = $this->loader->getPlayerManager()->getNullable($player);
-				if($instance !== null){
-					$instance->wait($this);
-					$weak_player = WeakPlayer::from($player);
-					$this->loader->getWorldManager()->getDatabase()->load($this, $player, function(PlayerWorldData $data) use($weak_player, $instance) : void{
-						$player = $weak_player->get();
-						if($player !== null){
-							$ev = new PerWorldPlayerDataInjectEvent($player, $this, $data);
-							$ev->call();
-							if(!$ev->isCancelled()){
-								$this->loader->getSaveDataManager()->inject($ev->getPlayerWorldData(), $player);
-							}
-							$instance->notify($this);
-						}
-					});
-				}
-			}
+		if($player->hasPermission("per-world-player.bypass")){
+			return;
 		}
+
+		if($from_world !== null && self::haveSameBundles($this, $from_world)){
+			return;
+		}
+
+		$instance = $this->loader->getPlayerManager()->get($player);
+		$instance->wait($this);
+		$weak_player = WeakPlayer::from($player);
+		$this->loader->getWorldManager()->getDatabase()->load($this, $player, function(PlayerWorldData $data) use($weak_player, $instance) : void{
+			$player = $weak_player->get();
+			if($player === null){
+				return;
+			}
+
+			$ev = new PerWorldPlayerDataInjectEvent($player, $this, $data);
+			$ev->call();
+			if(!$ev->isCancelled()){
+				$this->loader->getSaveDataManager()->inject($ev->getPlayerWorldData(), $player);
+			}
+			$instance->notify($this);
+		});
 	}
 
 	public function onPlayerExit(Player $player, ?WorldInstance $to_world = null, bool $quit = false) : void{
@@ -83,17 +87,19 @@ final class WorldInstance{
 			$ev->cancel();
 		}
 		$ev->call();
-		if(!$ev->isCancelled()){
-			$player_name = $player->getName();
-			$this->loader->getWorldManager()->getDatabase()->save($this, $player, $ev->getPlayerWorldData(), $cause, function(bool $success) use($player_name) : void{
-				if($success){
-					$this->loader->getLogger()->debug("Data successfully saved for player {$player_name} in world {$this->getName()}.");
-				}else{
-					$this->loader->getLogger()->error("Could not save data for player {$player_name} in world {$this->getName()}.");
-				}
-			});
-		}else{
+
+		if($ev->isCancelled()){
 			$this->loader->getLogger()->debug("Data save cancelled for player {$player->getName()} in world {$this->getName()}.");
+			return;
 		}
+
+		$player_name = $player->getName();
+		$this->loader->getWorldManager()->getDatabase()->save($this, $player, $ev->getPlayerWorldData(), $cause, function(bool $success) use($player_name) : void{
+			if($success){
+				$this->loader->getLogger()->debug("Data successfully saved for player {$player_name} in world {$this->getName()}.");
+			}else{
+				$this->loader->getLogger()->error("Could not save data for player {$player_name} in world {$this->getName()}.");
+			}
+		});
 	}
 }

@@ -33,34 +33,36 @@ abstract class LibasynqlWorldDatabase implements WorldDatabase{
 
 	public function load(WorldInstance $world, Player $player, Closure $onLoad) : void{
 		$this->database->executeSelect(WorldDatabaseStmts::LOAD, ["id" => $this->saveBinaryString(self::createIdentifier($player, $world))], function(array $rows) use ($onLoad) : void{
-			if(isset($rows[0])){
-				[
-					"armor_inventory" => $armor,
-					"inventory" => $inventory,
-					"ender_inventory" => $ender_inventory,
-					"health" => $health,
-					"effects" => $effects,
-					"gamemode" => $gamemode,
-					"experience" => $experience,
-					"food" => $food,
-					"saturation" => $saturation,
-					"exhaustion" => $exhaustion
-				] = $rows[0];
-				$onLoad(new PlayerWorldData(
-					WorldDatabaseUtils::unserializeInventoryContents($this->fetchBinaryString($armor)),
-					WorldDatabaseUtils::unserializeInventoryContents($this->fetchBinaryString($inventory)),
-					WorldDatabaseUtils::unserializeInventoryContents($this->fetchBinaryString($ender_inventory)),
-					$health,
-					WorldDatabaseUtils::unserializeEffects($this->fetchBinaryString($effects)),
-					GameModeIdMap::getInstance()->fromId($gamemode),
-					$experience,
-					$food,
-					$exhaustion,
-					$saturation
-				));
-			}else{
+			if(!isset($rows[0])){
 				$onLoad(PlayerWorldData::empty());
+				return;
 			}
+
+			[
+				"armor_inventory" => $armor,
+				"inventory" => $inventory,
+				"ender_inventory" => $ender_inventory,
+				"health" => $health,
+				"effects" => $effects,
+				"gamemode" => $gamemode,
+				"experience" => $experience,
+				"food" => $food,
+				"saturation" => $saturation,
+				"exhaustion" => $exhaustion
+			] = $rows[0];
+
+			$onLoad(new PlayerWorldData(
+				WorldDatabaseUtils::unserializeInventoryContents($this->fetchBinaryString($armor)),
+				WorldDatabaseUtils::unserializeInventoryContents($this->fetchBinaryString($inventory)),
+				WorldDatabaseUtils::unserializeInventoryContents($this->fetchBinaryString($ender_inventory)),
+				$health,
+				WorldDatabaseUtils::unserializeEffects($this->fetchBinaryString($effects)),
+				GameModeIdMap::getInstance()->fromId($gamemode),
+				$experience,
+				$food,
+				$exhaustion,
+				$saturation
+			));
 		});
 	}
 
