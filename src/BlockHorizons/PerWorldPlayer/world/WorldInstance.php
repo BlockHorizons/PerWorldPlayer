@@ -65,6 +65,18 @@ final class WorldInstance{
 		}
 	}
 
+	/**
+	 * Saves a player's world data. Plugins must use CAUSE_CUSTOM as other causes
+	 * (CAUSE_WORLD_CHANGE, CAUSE_PLAYER_QUIT) are handled by PerWorldPlayer.
+	 *
+	 * The $force parameter skips checking whether the player can bypass data
+	 * saving by having the permission: "per-world-player.bypass".
+	 *
+	 * @param Player $player
+	 * @param PlayerWorldData $data
+	 * @param int $cause
+	 * @param bool $force
+	 */
 	public function save(Player $player, PlayerWorldData $data, int $cause = PerWorldPlayerDataSaveEvent::CAUSE_CUSTOM, bool $force = false) : void{
 		$ev = new PerWorldPlayerDataSaveEvent($player, $this, $data, $cause);
 		if(!$force && $player->hasPermission("per-world-player.bypass")){
