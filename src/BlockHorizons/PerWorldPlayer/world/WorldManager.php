@@ -27,7 +27,7 @@ final class WorldManager{
 		$this->loader = $loader;
 		$this->bundle = new BundleManager($this->loader->getConfig()->get("Bundled-Worlds"));
 		$this->database = WorldDatabaseFactory::create($this->loader);
-		$this->loader->getServer()->getPluginManager()->registerEvents(new WorldListener($this), $this->loader);
+		$this->loader->getServer()->getPluginManager()->registerEvents(new WorldListener($this->loader->getPlayerManager(), $this), $this->loader);
 	}
 
 	public function getDatabase() : WorldDatabase{
