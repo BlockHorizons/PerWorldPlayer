@@ -22,7 +22,7 @@ final class PlayerListener implements Listener{
 	){}
 
 	private function shouldCancelEvent(Player $player) : bool{
-		return $this->manager->getNullable($player)?->isWaiting() ?? false;
+		return $this->manager->getNullable($player)?->isLocked() ?? false;
 	}
 
 	/**

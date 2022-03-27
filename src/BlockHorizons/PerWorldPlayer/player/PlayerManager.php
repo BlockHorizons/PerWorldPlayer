@@ -9,19 +9,25 @@ use pocketmine\player\Player;
 
 final class PlayerManager{
 
+	private Loader $loader;
+
 	/** @var PlayerInstance[] */
 	private array $players = [];
 
-	public function __construct(Loader $plugin){
-		$plugin->getServer()->getPluginManager()->registerEvents(new PlayerListener($this), $plugin);
+	public function __construct(Loader $loader){
+		$this->loader = $loader;
+		$this->loader->getServer()->getPluginManager()->registerEvents(new PlayerListener($this), $this->loader);
 	}
 
 	public function onPlayerJoin(Player $player) : void{
-		$this->players[$player->getId()] = new PlayerInstance();
+		$this->players[$player->getId()] = new PlayerInstance($this->loader, $player);
 	}
 
 	public function onPlayerQuit(Player $player) : void{
-		unset($this->players[$player->getId()]);
+		if(isset($this->players[$id = $player->getId()])){ // TODO: Load players during PlayerLoginEvent instead of PlayerJoinEvent to avoid this isset() check
+			$this->players[$id]->close();
+			unset($this->players[$id]);
+		}
 	}
 
 	public function get(Player $player) : PlayerInstance{

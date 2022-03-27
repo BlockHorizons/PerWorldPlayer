@@ -45,10 +45,8 @@ final class WorldInstance{
 			return;
 		}
 
-		$instance = $this->loader->getPlayerManager()->get($player);
-		$instance->wait($this);
 		$weak_player = WeakPlayer::from($player);
-		$this->loader->getWorldManager()->getDatabase()->load($this, $player, function(PlayerWorldData $data) use($weak_player, $instance) : void{
+		$this->loader->getPlayerManager()->get($player)->loadWorldData($this, function(PlayerWorldData $data) use($weak_player) : void{
 			$player = $weak_player->get();
 			if($player === null){
 				return;
@@ -59,7 +57,6 @@ final class WorldInstance{
 			if(!$ev->isCancelled()){
 				$this->loader->getSaveDataManager()->inject($ev->getPlayerWorldData(), $player);
 			}
-			$instance->notify($this);
 		});
 	}
 
@@ -88,18 +85,12 @@ final class WorldInstance{
 		}
 		$ev->call();
 
+		$instance = $this->loader->getPlayerManager()->get($player);
 		if($ev->isCancelled()){
-			$this->loader->getLogger()->debug("Data save cancelled for player {$player->getName()} in world {$this->getName()}.");
+			$instance->getLogger()->debug("Data for world " . $this->getName() . " failed to save due to event cancellation");
 			return;
 		}
 
-		$player_name = $player->getName();
-		$this->loader->getWorldManager()->getDatabase()->save($this, $player, $ev->getPlayerWorldData(), $cause, function(bool $success) use($player_name) : void{
-			if($success){
-				$this->loader->getLogger()->debug("Data successfully saved for player {$player_name} in world {$this->getName()}.");
-			}else{
-				$this->loader->getLogger()->error("Could not save data for player {$player_name} in world {$this->getName()}.");
-			}
-		});
+		$instance->saveWorldData($this, $data, $cause);
 	}
 }
