@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace BlockHorizons\PerWorldPlayer\world;
 
 use BlockHorizons\PerWorldPlayer\Loader;
+use BlockHorizons\PerWorldPlayer\util\WeakPlayer;
 use BlockHorizons\PerWorldPlayer\world\data\PlayerWorldData;
 use BlockHorizons\PerWorldPlayer\events\PerWorldPlayerDataInjectEvent;
 use BlockHorizons\PerWorldPlayer\events\PerWorldPlayerDataSaveEvent;
@@ -41,8 +42,10 @@ final class WorldInstance{
 				$instance = $this->loader->getPlayerManager()->getNullable($player);
 				if($instance !== null){
 					$instance->wait($this);
-					$this->loader->getWorldManager()->getDatabase()->load($this, $player, function(PlayerWorldData $data) use($player, $instance) : void{
-						if($player->isOnline()){
+					$weak_player = WeakPlayer::from($player);
+					$this->loader->getWorldManager()->getDatabase()->load($this, $player, function(PlayerWorldData $data) use($weak_player, $instance) : void{
+						$player = $weak_player->get();
+						if($player !== null){
 							$ev = new PerWorldPlayerDataInjectEvent($player, $this, $data);
 							$ev->call();
 							if(!$ev->isCancelled()){
@@ -69,11 +72,12 @@ final class WorldInstance{
 		}
 		$ev->call();
 		if(!$ev->isCancelled()){
-			$this->loader->getWorldManager()->getDatabase()->save($this, $player, $ev->getPlayerWorldData(), $cause, function(bool $success) use($player) : void{
+			$player_name = $player->getName();
+			$this->loader->getWorldManager()->getDatabase()->save($this, $player, $ev->getPlayerWorldData(), $cause, function(bool $success) use($player_name) : void{
 				if($success){
-					$this->loader->getLogger()->debug("Data successfully saved for player {$player->getName()} in world {$this->getName()}.");
+					$this->loader->getLogger()->debug("Data successfully saved for player {$player_name} in world {$this->getName()}.");
 				}else{
-					$this->loader->getLogger()->error("Could not save data for player {$player->getName()} in world {$this->getName()}.");
+					$this->loader->getLogger()->error("Could not save data for player {$player_name} in world {$this->getName()}.");
 				}
 			});
 		}else{
