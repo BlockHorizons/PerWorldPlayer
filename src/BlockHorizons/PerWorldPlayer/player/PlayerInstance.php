@@ -116,7 +116,7 @@ final class PlayerInstance{
 	public function saveWorldData(WorldInstance $world, PlayerWorldData $data, int $cause) : void{
 		$name = $world->getName();
 		$logger = $this->getLogger();
-		$this->loader->getWorldManager()->getDatabase()->save($world, $this->player, $data, $cause, function(bool $success) use($name, $logger, $cause) : void{
+		$this->loader->getWorldManager()->getDatabase()->save($world, $this->player, $data, $cause, static function(bool $success) use($name, $logger, $cause) : void{
 			if($success){
 				$logger->debug("Data for world " . $name . " successfully saved");
 			}else{
