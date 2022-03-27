@@ -14,33 +14,33 @@ final class SaveDataManager{
 	/**
 	 * @var Closure[]
 	 *
-	 * @phpstan-var array<Closure(PlayerWorldData $data, Player $player) : void>
+	 * @phpstan-var array<string, Closure(PlayerWorldData $data, Player $player) : void>
 	 */
-	private static array $injectors = [];
+	private array $injectors = [];
 
-	public static function init(Loader $loader) : void{
-		self::registerInjector(SaveDataIds::NORMAL_INVENTORY, static function(PlayerWorldData $data, Player $player) : void{ $player->getInventory()->setContents($data->inventory); });
-		self::registerInjector(SaveDataIds::ARMOR_INVENTORY, static function(PlayerWorldData $data, Player $player) : void{ $player->getArmorInventory()->setContents($data->armor_inventory); });
-		self::registerInjector(SaveDataIds::ENDER_INVENTORY, static function(PlayerWorldData $data, Player $player) : void{ $player->getEnderInventory()->setContents($data->ender_inventory); });
-		self::registerInjector(SaveDataIds::HEALTH, static function(PlayerWorldData $data, Player $player) : void{ $player->setHealth($data->health); });
-		self::registerInjector(SaveDataIds::EFFECTS, static function(PlayerWorldData $data, Player $player) : void{
+	public function __construct(Loader $loader){
+		$this->registerInjector(SaveDataIds::NORMAL_INVENTORY, static function(PlayerWorldData $data, Player $player) : void{ $player->getInventory()->setContents($data->inventory); });
+		$this->registerInjector(SaveDataIds::ARMOR_INVENTORY, static function(PlayerWorldData $data, Player $player) : void{ $player->getArmorInventory()->setContents($data->armor_inventory); });
+		$this->registerInjector(SaveDataIds::ENDER_INVENTORY, static function(PlayerWorldData $data, Player $player) : void{ $player->getEnderInventory()->setContents($data->ender_inventory); });
+		$this->registerInjector(SaveDataIds::HEALTH, static function(PlayerWorldData $data, Player $player) : void{ $player->setHealth($data->health); });
+		$this->registerInjector(SaveDataIds::EFFECTS, static function(PlayerWorldData $data, Player $player) : void{
 			$effects = $player->getEffects();
 			$effects->clear();
 			foreach($data->effects as $effect) {
 				$effects->add($effect);
 			}
 		});
-		self::registerInjector(SaveDataIds::GAMEMODE, static function(PlayerWorldData $data, Player $player) : void{ $player->setGamemode($data->gamemode); });
-		self::registerInjector(SaveDataIds::EXPERIENCE, static function(PlayerWorldData $data, Player $player) : void{ $player->getXpManager()->setCurrentTotalXp($data->experience); });
-		self::registerInjector(SaveDataIds::FOOD_HUNGER, static function(PlayerWorldData $data, Player $player) : void{ $player->getHungerManager()->setFood($data->food); });
-		self::registerInjector(SaveDataIds::FOOD_SATURATION, static function(PlayerWorldData $data, Player $player) : void{ $player->getHungerManager()->setSaturation($data->saturation); });
-		self::registerInjector(SaveDataIds::FOOD_EXHAUSTION, static function(PlayerWorldData $data, Player $player) : void{ $player->getHungerManager()->setExhaustion($data->exhaustion); });
+		$this->registerInjector(SaveDataIds::GAMEMODE, static function(PlayerWorldData $data, Player $player) : void{ $player->setGamemode($data->gamemode); });
+		$this->registerInjector(SaveDataIds::EXPERIENCE, static function(PlayerWorldData $data, Player $player) : void{ $player->getXpManager()->setCurrentTotalXp($data->experience); });
+		$this->registerInjector(SaveDataIds::FOOD_HUNGER, static function(PlayerWorldData $data, Player $player) : void{ $player->getHungerManager()->setFood($data->food); });
+		$this->registerInjector(SaveDataIds::FOOD_SATURATION, static function(PlayerWorldData $data, Player $player) : void{ $player->getHungerManager()->setSaturation($data->saturation); });
+		$this->registerInjector(SaveDataIds::FOOD_EXHAUSTION, static function(PlayerWorldData $data, Player $player) : void{ $player->getHungerManager()->setExhaustion($data->exhaustion); });
 
 		$config = $loader->getConfig();
 		$disabled = [];
 		foreach((new ReflectionClass(SaveDataIds::class))->getConstants() as $identifier){
 			if(!$config->getNested("Save-Data." . $identifier)){
-				unset(self::$injectors[$identifier]);
+				unset($this->injectors[$identifier]);
 				$disabled[] = $identifier;
 			}
 		}
@@ -56,12 +56,12 @@ final class SaveDataManager{
 	 *
 	 * @phpstan-param Closure(PlayerWorldData $data, Player $player) : void $injector
 	 */
-	private static function registerInjector(string $identifier, Closure $injector) : void{
-		self::$injectors[$identifier] = $injector;
+	private function registerInjector(string $identifier, Closure $injector) : void{
+		$this->injectors[$identifier] = $injector;
 	}
 
-	public static function inject(PlayerWorldData $data, Player $player) : void{
-		foreach(self::$injectors as $injector){
+	public function inject(PlayerWorldData $data, Player $player) : void{
+		foreach($this->injectors as $injector){
 			$injector($data, $player);
 		}
 	}

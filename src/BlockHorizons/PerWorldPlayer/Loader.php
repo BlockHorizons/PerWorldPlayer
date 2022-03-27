@@ -12,11 +12,12 @@ use pocketmine\plugin\PluginBase;
 final class Loader extends PluginBase{
 
 	private PlayerManager $player_manager;
+	private SaveDataManager $save_data_manager;
 	private WorldManager $world_manager;
 
 	protected function onEnable() : void{
-		SaveDataManager::init($this);
 		$this->player_manager = new PlayerManager($this);
+		$this->save_data_manager = new SaveDataManager($this);
 		$this->world_manager = new WorldManager($this);
 	}
 
@@ -24,11 +25,15 @@ final class Loader extends PluginBase{
 		$this->world_manager->close();
 	}
 
-	/**
-	 * @return PlayerManager
-	 * @internal
-	 */
 	public function getPlayerManager() : PlayerManager{
 		return $this->player_manager;
+	}
+
+	public function getSaveDataManager() : SaveDataManager{
+		return $this->save_data_manager;
+	}
+
+	public function getWorldManager() : WorldManager{
+		return $this->world_manager;
 	}
 }

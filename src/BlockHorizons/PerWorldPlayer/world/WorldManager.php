@@ -6,35 +6,32 @@ namespace BlockHorizons\PerWorldPlayer\world;
 
 use BlockHorizons\PerWorldPlayer\events\PerWorldPlayerDataSaveEvent;
 use BlockHorizons\PerWorldPlayer\Loader;
-use BlockHorizons\PerWorldPlayer\player\PlayerManager;
 use BlockHorizons\PerWorldPlayer\world\bundle\BundleManager;
 use BlockHorizons\PerWorldPlayer\world\data\PlayerWorldData;
 use BlockHorizons\PerWorldPlayer\world\database\WorldDatabase;
 use BlockHorizons\PerWorldPlayer\world\database\WorldDatabaseFactory;
-use Logger;
 use pocketmine\scheduler\ClosureTask;
-use pocketmine\scheduler\TaskScheduler;
 use pocketmine\Server;
 use pocketmine\world\World;
 
 final class WorldManager{
 
+	private Loader $loader;
 	private BundleManager $bundle;
 	private WorldDatabase $database;
-	private PlayerManager $player_manager;
-	private TaskScheduler $scheduler;
-	private Logger $logger;
 
 	/** @var WorldInstance[] */
 	private array $worlds = [];
 
-	public function __construct(Loader $plugin){
-		$this->bundle = new BundleManager($plugin->getConfig()->get("Bundled-Worlds"));
-		$this->database = WorldDatabaseFactory::create($plugin);
-		$this->player_manager = $plugin->getPlayerManager();
-		$this->logger = $plugin->getLogger();
-		$this->scheduler = $plugin->getScheduler();
-		$plugin->getServer()->getPluginManager()->registerEvents(new WorldListener($this), $plugin);
+	public function __construct(Loader $loader){
+		$this->loader = $loader;
+		$this->bundle = new BundleManager($this->loader->getConfig()->get("Bundled-Worlds"));
+		$this->database = WorldDatabaseFactory::create($this->loader);
+		$this->loader->getServer()->getPluginManager()->registerEvents(new WorldListener($this), $this->loader);
+	}
+
+	public function getDatabase() : WorldDatabase{
+		return $this->database;
 	}
 
 	public function close() : void{
@@ -49,14 +46,14 @@ final class WorldManager{
 	}
 
 	public function onWorldLoad(World $world) : void{
-		$this->worlds[$world->getId()] = new WorldInstance($world, $this->database, $this->player_manager, $this->logger, $this->bundle->getBundle($world->getFolderName()));
+		$this->worlds[$world->getId()] = new WorldInstance($this->loader, $world, $this->bundle->getBundle($world->getFolderName()));
 	}
 
 	public function onWorldUnload(World $world, bool $instant = false) : void{
 		if($instant){
 			unset($this->worlds[$world->getId()]);
 		}else{
-			$this->scheduler->scheduleDelayedTask(new ClosureTask(function() use($world) : void{
+			$this->loader->getScheduler()->scheduleDelayedTask(new ClosureTask(function() use($world) : void{
 				if(!$world->isLoaded()){
 					$this->onWorldUnload($world, true);
 				}

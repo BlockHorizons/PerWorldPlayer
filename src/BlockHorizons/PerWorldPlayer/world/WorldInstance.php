@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace BlockHorizons\PerWorldPlayer\world;
 
-use BlockHorizons\PerWorldPlayer\player\PlayerManager;
+use BlockHorizons\PerWorldPlayer\Loader;
 use BlockHorizons\PerWorldPlayer\world\data\PlayerWorldData;
-use BlockHorizons\PerWorldPlayer\world\database\WorldDatabase;
 use BlockHorizons\PerWorldPlayer\events\PerWorldPlayerDataInjectEvent;
 use BlockHorizons\PerWorldPlayer\events\PerWorldPlayerDataSaveEvent;
-use Logger;
 use pocketmine\player\Player;
 use pocketmine\world\World;
 
@@ -19,17 +17,13 @@ final class WorldInstance{
 		return $a->bundle !== null && $b->bundle !== null && $a->bundle === $b->bundle;
 	}
 
+	private Loader $loader;
 	private string $name;
-	private WorldDatabase $database;
-	private PlayerManager $player_manager;
-	private Logger $logger;
 	private ?string $bundle;
 
-	public function __construct(World $world, WorldDatabase $database, PlayerManager $player_manager, Logger $logger, ?string $bundle){
+	public function __construct(Loader $loader, World $world, ?string $bundle){
+		$this->loader = $loader;
 		$this->name = $world->getFolderName();
-		$this->database = $database;
-		$this->player_manager = $player_manager;
-		$this->logger = $logger;
 		$this->bundle = $bundle;
 	}
 
@@ -44,15 +38,15 @@ final class WorldInstance{
 	public function onPlayerEnter(Player $player, ?WorldInstance $from_world = null) : void{
 		if(!$player->hasPermission("per-world-player.bypass")){
 			if($from_world === null || !self::haveSameBundles($this, $from_world)){
-				$instance = $this->player_manager->getNullable($player);
+				$instance = $this->loader->getPlayerManager()->getNullable($player);
 				if($instance !== null){
 					$instance->wait($this);
-					$this->database->load($this, $player, function(PlayerWorldData $data) use($player, $instance) : void{
+					$this->loader->getWorldManager()->getDatabase()->load($this, $player, function(PlayerWorldData $data) use($player, $instance) : void{
 						if($player->isOnline()){
 							$ev = new PerWorldPlayerDataInjectEvent($player, $this, $data);
 							$ev->call();
 							if(!$ev->isCancelled()){
-								$ev->getPlayerWorldData()->inject($player);
+								$this->loader->getSaveDataManager()->inject($ev->getPlayerWorldData(), $player);
 							}
 							$instance->notify($this);
 						}
@@ -75,15 +69,15 @@ final class WorldInstance{
 		}
 		$ev->call();
 		if(!$ev->isCancelled()){
-			$this->database->save($this, $player, $ev->getPlayerWorldData(), $cause, function(bool $success) use($player) : void{
+			$this->loader->getWorldManager()->getDatabase()->save($this, $player, $ev->getPlayerWorldData(), $cause, function(bool $success) use($player) : void{
 				if($success){
-					$this->logger->debug("Data successfully saved for player {$player->getName()} in world {$this->getName()}.");
+					$this->loader->getLogger()->debug("Data successfully saved for player {$player->getName()} in world {$this->getName()}.");
 				}else{
-					$this->logger->error("Could not save data for player {$player->getName()} in world {$this->getName()}.");
+					$this->loader->getLogger()->error("Could not save data for player {$player->getName()} in world {$this->getName()}.");
 				}
 			});
 		}else{
-			$this->logger->debug("Data save cancelled for player {$player->getName()} in world {$this->getName()}.");
+			$this->loader->getLogger()->debug("Data save cancelled for player {$player->getName()} in world {$this->getName()}.");
 		}
 	}
 }

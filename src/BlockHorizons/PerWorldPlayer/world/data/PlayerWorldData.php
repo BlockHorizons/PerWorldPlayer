@@ -86,8 +86,4 @@ final class PlayerWorldData{
 		public float $exhaustion,
 		public float $saturation
 	){}
-
-	public function inject(Player $player) : void{
-		SaveDataManager::inject($this, $player);
-	}
 }
