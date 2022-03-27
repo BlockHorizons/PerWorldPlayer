@@ -33,8 +33,8 @@ final class WorldInstance{
 	/** @var string|null */
 	private $bundle;
 
-	public function __construct(World $level, WorldDatabase $database, PlayerManager $player_manager, \Logger $logger, ?string $bundle){
-		$this->name = $level->getFolderName();
+	public function __construct(World $world, WorldDatabase $database, PlayerManager $player_manager, \Logger $logger, ?string $bundle){
+		$this->name = $world->getFolderName();
 		$this->database = $database;
 		$this->player_manager = $player_manager;
 		$this->logger = $logger;
