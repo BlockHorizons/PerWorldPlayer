@@ -24,10 +24,10 @@ Save-Data:
     saturation: true
     exhaustion: true
 
-# Worlds in which inventories should be bundled.
+# Worlds in which player data should be bundled.
 #
 # The example below bundles hub1, hub2 and hub3 into one category
-# labelled "hubs". Players will share the same inventory in all
+# labelled "hubs". Players will share the same player data in all
 # three worlds (hub1, hub2, hub3).
 #
 # Bundled-Worlds:
