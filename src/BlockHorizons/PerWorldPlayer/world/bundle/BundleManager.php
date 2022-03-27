@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace BlockHorizons\PerWorldPlayer\world\bundle;
 
+use InvalidArgumentException;
+
 final class BundleManager{
 
 	/** @var Bundle[] */
@@ -32,7 +34,7 @@ final class BundleManager{
 
 	public function createBundle(string $name) : void{
 		if(isset($this->bundles[$name])){
-			throw new \InvalidArgumentException("Bundle " . $name . " already exists.");
+			throw new InvalidArgumentException("Bundle " . $name . " already exists.");
 		}
 
 		$this->bundles[$name] = new Bundle();
@@ -40,11 +42,11 @@ final class BundleManager{
 
 	public function addToBundle(string $bundle, string $world) : void{
 		if(isset($this->bundled_worlds[$world])){
-			throw new \InvalidArgumentException("World " . $world . " is already bundled in bundle " . $this->bundled_worlds[$world]);
+			throw new InvalidArgumentException("World " . $world . " is already bundled in bundle " . $this->bundled_worlds[$world]);
 		}
 
 		if(!isset($this->bundles[$bundle])){
-			throw new \InvalidArgumentException("Tried adding world " . $world . " into a non-existent bundle " . $bundle);
+			throw new InvalidArgumentException("Tried adding world " . $world . " into a non-existent bundle " . $bundle);
 		}
 
 		$this->bundled_worlds[$world] = $bundle;
