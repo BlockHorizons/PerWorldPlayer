@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace BlockHorizons\PerWorldPlayer\world;
 
+use BlockHorizons\PerWorldPlayer\events\PerWorldPlayerDataInjectEvent;
+use BlockHorizons\PerWorldPlayer\events\PerWorldPlayerDataSaveEvent;
 use BlockHorizons\PerWorldPlayer\Loader;
 use BlockHorizons\PerWorldPlayer\util\WeakPlayer;
 use BlockHorizons\PerWorldPlayer\world\data\PlayerWorldData;
-use BlockHorizons\PerWorldPlayer\events\PerWorldPlayerDataInjectEvent;
-use BlockHorizons\PerWorldPlayer\events\PerWorldPlayerDataSaveEvent;
 use pocketmine\player\Player;
 use pocketmine\world\World;
 
