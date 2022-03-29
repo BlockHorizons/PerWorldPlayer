@@ -61,7 +61,10 @@ final class WorldInstance{
 	}
 
 	public function onPlayerExit(Player $player, ?WorldInstance $to_world = null, bool $quit = false) : void{
-		if($to_world === null || !self::haveSameBundles($this, $to_world)){ //TODO: currently plugins cannot bypass this
+		if(
+			($to_world === null || !self::haveSameBundles($this, $to_world)) &&
+			$this->loader->getPlayerManager()->getNullable($player) !== null
+		){ //TODO: currently plugins cannot bypass this
 			$this->save($player, PlayerWorldData::fromPlayer($player), $quit ? PerWorldPlayerDataSaveEvent::CAUSE_PLAYER_QUIT : PerWorldPlayerDataSaveEvent::CAUSE_WORLD_CHANGE);
 		}
 	}
