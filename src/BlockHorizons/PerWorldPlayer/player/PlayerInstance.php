@@ -143,6 +143,8 @@ final class PlayerInstance{
 	}
 
 	public function saveWorldData(WorldInstance $world, PlayerWorldData $data, int $cause) : void{
+		$this->world_data[$world->getName()] = $data;
+
 		$name = $world->getName();
 		$logger = $this->getLogger();
 		$logger->debug("Saving data for world " . $name . "...");
