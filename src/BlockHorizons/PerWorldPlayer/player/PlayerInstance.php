@@ -41,6 +41,13 @@ final class PlayerInstance{
 	 */
 	private array $world_data_callbacks = [];
 
+	/**
+	 * @var Closure[]
+	 *
+	 * @phpstan-var array<Closure() : void>
+	 */
+	private array $on_locks_release = [];
+
 	public function __construct(Loader $loader, Player $player){
 		$this->loader = $loader;
 		$this->player = $player;
@@ -58,10 +65,31 @@ final class PlayerInstance{
 
 	public function releaseLock(int $id) : void{
 		unset($this->locks[$id]);
+		while(!$this->isLocked()){
+			$index = key($this->on_locks_release);
+			if($index === null){
+				break;
+			}
+			$this->on_locks_release[$index]();
+		}
 	}
 
 	public function isLocked() : bool{
 		return count($this->locks) > 0;
+	}
+
+	/**
+	 * @param Closure $callback
+	 *
+	 * @phpstan-param Closure() : void $callback
+	 */
+	public function waitForUnlock(Closure $callback) : void{
+		if($this->isLocked()){
+			$this->on_locks_release[spl_object_id($callback)] = $callback;
+			$this->logger->debug("Waiting for " . count($this->locks) . " lock(s) to free before executing #" . spl_object_id($callback));
+		}else{
+			$callback();
+		}
 	}
 
 	/**
@@ -86,15 +114,17 @@ final class PlayerInstance{
 
 		$weak_player = WeakPlayer::from($this->player);
 		$loader = $this->loader;
-		$lock = $this->acquireLock();
-		$loader->getWorldManager()->getDatabase()->load($world, $this->player, static function(PlayerWorldData $data) use($loader, $weak_player, $name, $lock) : void{
-			$player = $weak_player->get();
-			if($player !== null){
-				$instance = $loader->getPlayerManager()->get($player);
-				$instance->getLogger()->debug("Loaded data for world " . $name . " from database");
-				$instance->onWorldDataLoad($name, $data);
-				$instance->releaseLock($lock);
-			}
+		$this->waitForUnlock(function() use($loader, $world, $weak_player, $name) : void{
+			$lock = $this->acquireLock();
+			$loader->getWorldManager()->getDatabase()->load($world, $this->player, static function(PlayerWorldData $data) use($loader, $weak_player, $name, $lock) : void{
+				$player = $weak_player->get();
+				if($player !== null){
+					$instance = $loader->getPlayerManager()->get($player);
+					$instance->getLogger()->debug("Loaded data for world " . $name . " from database");
+					$instance->onWorldDataLoad($name, $data);
+					$instance->releaseLock($lock);
+				}
+			});
 		});
 	}
 
@@ -127,5 +157,6 @@ final class PlayerInstance{
 
 	public function close() : void{
 		$this->world_data_callbacks = [];
+		$this->on_locks_release = [];
 	}
 }
