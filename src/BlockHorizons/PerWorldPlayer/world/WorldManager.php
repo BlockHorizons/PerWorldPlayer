@@ -35,10 +35,13 @@ final class WorldManager{
 	}
 
 	public function close() : void{
+		$player_manager = $this->loader->getPlayerManager();
 		foreach(Server::getInstance()->getWorldManager()->getWorlds() as $world){
 			$instance = $this->get($world);
 			foreach($world->getPlayers() as $player){
-				$instance->save($player, PlayerWorldData::fromPlayer($player), PerWorldPlayerDataSaveEvent::CAUSE_PLAYER_QUIT);
+				if($player_manager->getNullable($player) !== null){
+					$instance->save($player, PlayerWorldData::fromPlayer($player), PerWorldPlayerDataSaveEvent::CAUSE_PLAYER_QUIT);
+				}
 			}
 		}
 
