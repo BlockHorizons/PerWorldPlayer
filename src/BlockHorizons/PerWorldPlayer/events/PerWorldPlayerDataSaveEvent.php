@@ -16,7 +16,7 @@ class PerWorldPlayerDataSaveEvent extends PerWorldPlayerDataEvent implements Can
 	public const CAUSE_PLAYER_QUIT = 1;
 	public const CAUSE_CUSTOM = 2;
 
-	private int $cause;
+	readonly private int $cause;
 
 	public function __construct(Player $player, WorldInstance $worldInstance, PlayerWorldData $playerWorldData, int $cause){
 		parent::__construct($player, $worldInstance, $playerWorldData);

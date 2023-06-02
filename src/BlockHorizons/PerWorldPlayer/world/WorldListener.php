@@ -16,13 +16,10 @@ use pocketmine\Server;
 
 final class WorldListener implements Listener{
 
-	private PlayerManager $player_manager;
-	private WorldManager $world_manager;
-
-	public function __construct(PlayerManager $player_manager, WorldManager $world_manager){
-		$this->player_manager = $player_manager;
-		$this->world_manager = $world_manager;
-
+	public function __construct(
+		readonly private PlayerManager $player_manager,
+		readonly private WorldManager $world_manager
+	){
 		foreach(Server::getInstance()->getWorldManager()->getWorlds() as $world){
 			$this->world_manager->onWorldLoad($world);
 		}

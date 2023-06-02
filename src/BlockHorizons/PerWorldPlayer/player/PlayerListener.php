@@ -18,7 +18,7 @@ use pocketmine\player\Player;
 final class PlayerListener implements Listener{
 
 	public function __construct(
-		private PlayerManager $manager
+		readonly private PlayerManager $manager
 	){}
 
 	private function shouldCancelEvent(Player $player) : bool{

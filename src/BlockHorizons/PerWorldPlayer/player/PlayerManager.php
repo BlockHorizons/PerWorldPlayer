@@ -9,13 +9,12 @@ use pocketmine\player\Player;
 
 final class PlayerManager{
 
-	private Loader $loader;
-
 	/** @var PlayerInstance[] */
 	private array $players = [];
 
-	public function __construct(Loader $loader){
-		$this->loader = $loader;
+	public function __construct(
+		readonly private Loader $loader
+	){
 		$this->loader->getServer()->getPluginManager()->registerEvents(new PlayerListener($this), $this->loader);
 	}
 

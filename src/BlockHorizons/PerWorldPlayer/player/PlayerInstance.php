@@ -22,9 +22,7 @@ final class PlayerInstance{
 
 	private const WORLD_DATA_CACHE_SIZE = 8;
 
-	private Loader $loader;
-	private Player $player;
-	private Logger $logger;
+	readonly private Logger $logger;
 
 	private int $lock_ids = 0;
 
@@ -40,9 +38,10 @@ final class PlayerInstance{
 	/** @var array<Closure() : void> */
 	private array $on_locks_release = [];
 
-	public function __construct(Loader $loader, Player $player){
-		$this->loader = $loader;
-		$this->player = $player;
+	public function __construct(
+		readonly private Loader $loader,
+		readonly private Player $player
+	){
 		$this->logger = new PrefixedLogger($this->loader->getLogger(), $player->getName());
 	}
 

@@ -16,8 +16,8 @@ final class WeakPlayer{
 	}
 
 	private function __construct(
-		private UuidInterface $uuid,
-		private int $object_id
+		readonly private UuidInterface $uuid,
+		readonly private int $object_id
 	){}
 
 	public function get() : ?Player{

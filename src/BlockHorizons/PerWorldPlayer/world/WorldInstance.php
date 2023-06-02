@@ -18,9 +18,9 @@ final class WorldInstance{
 		return $a->bundle !== null && $b->bundle !== null && $a->bundle === $b->bundle;
 	}
 
-	private Loader $loader;
-	private string $name;
-	private ?string $bundle;
+	readonly private Loader $loader;
+	readonly private string $name;
+	readonly private ?string $bundle;
 
 	public function __construct(Loader $loader, World $world, ?string $bundle){
 		$this->loader = $loader;

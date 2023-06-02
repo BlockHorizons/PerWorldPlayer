@@ -12,8 +12,8 @@ use pocketmine\player\Player;
 abstract class PerWorldPlayerDataEvent extends Event{
 
 	public function __construct(
-		private Player $player,
-		private WorldInstance $worldInstance,
+		readonly private Player $player,
+		readonly private WorldInstance $worldInstance,
 		private PlayerWorldData $playerWorldData
 	){}
 

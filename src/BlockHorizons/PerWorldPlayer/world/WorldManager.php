@@ -16,9 +16,9 @@ use pocketmine\world\World;
 
 final class WorldManager{
 
-	private Loader $loader;
-	private BundleManager $bundle;
-	private WorldDatabase $database;
+	readonly private Loader $loader;
+	readonly private BundleManager $bundle;
+	readonly private WorldDatabase $database;
 
 	/** @var WorldInstance[] */
 	private array $worlds = [];

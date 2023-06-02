@@ -67,15 +67,15 @@ final class PlayerWorldData{
 	 * @param float $saturation
 	 */
 	public function __construct(
-		public array $armor_inventory,
-		public array $inventory,
-		public array $ender_inventory,
-		public float $health,
-		public array $effects,
-		public GameMode $gamemode,
-		public int $experience,
-		public float $food,
-		public float $exhaustion,
-		public float $saturation
+		readonly public array $armor_inventory,
+		readonly public array $inventory,
+		readonly public array $ender_inventory,
+		readonly public float $health,
+		readonly public array $effects,
+		readonly public GameMode $gamemode,
+		readonly public int $experience,
+		readonly public float $food,
+		readonly public float $exhaustion,
+		readonly public float $saturation
 	){}
 }
