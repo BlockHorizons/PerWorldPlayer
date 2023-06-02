@@ -7,8 +7,10 @@ namespace BlockHorizons\PerWorldPlayer\world;
 use BlockHorizons\PerWorldPlayer\events\PerWorldPlayerDataInjectEvent;
 use BlockHorizons\PerWorldPlayer\events\PerWorldPlayerDataSaveEvent;
 use BlockHorizons\PerWorldPlayer\Loader;
+use BlockHorizons\PerWorldPlayer\player\PlayerInstance;
 use BlockHorizons\PerWorldPlayer\util\WeakPlayer;
 use BlockHorizons\PerWorldPlayer\world\data\PlayerWorldData;
+use Logger;
 use pocketmine\player\Player;
 use pocketmine\world\World;
 
@@ -19,21 +21,13 @@ final class WorldInstance{
 	}
 
 	readonly private Loader $loader;
-	readonly private string $name;
-	readonly private ?string $bundle;
+	readonly public string $name;
+	readonly public ?string $bundle;
 
 	public function __construct(Loader $loader, World $world, ?string $bundle){
 		$this->loader = $loader;
 		$this->name = $world->getFolderName();
 		$this->bundle = $bundle;
-	}
-
-	public function getName() : string{
-		return $this->name;
-	}
-
-	public function getBundle() : ?string{
-		return $this->bundle;
 	}
 
 	public function onPlayerEnter(Player $player, ?WorldInstance $from_world = null) : void{
@@ -90,7 +84,7 @@ final class WorldInstance{
 
 		$instance = $this->loader->getPlayerManager()->get($player);
 		if($ev->isCancelled()){
-			$instance->getLogger()->debug("Data for world " . $this->getName() . " failed to save due to event cancellation");
+			$instance->logger->debug("Data for world " . $this->name . " failed to save due to event cancellation");
 			return;
 		}
 

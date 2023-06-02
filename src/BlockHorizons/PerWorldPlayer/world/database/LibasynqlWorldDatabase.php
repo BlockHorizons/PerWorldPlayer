@@ -18,8 +18,8 @@ abstract class LibasynqlWorldDatabase implements WorldDatabase{
 
 	private static function createIdentifier(Player $player, WorldInstance $world) : string{
 		$name = strtolower($player->getName());
-		$bundle = $world->getBundle();
-		return chr(strlen($name)) . $name . chr($bundle !== null ? 1 : 0) . ($bundle ?? $world->getName());
+		$bundle = $world->bundle;
+		return chr(strlen($name)) . $name . chr($bundle !== null ? 1 : 0) . ($bundle ?? $world->name);
 	}
 
 	private DataConnector $database;

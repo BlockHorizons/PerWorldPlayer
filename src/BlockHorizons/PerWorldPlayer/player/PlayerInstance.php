@@ -22,7 +22,7 @@ final class PlayerInstance{
 
 	private const WORLD_DATA_CACHE_SIZE = 8;
 
-	readonly private Logger $logger;
+	readonly public Logger $logger;
 
 	private int $lock_ids = 0;
 
@@ -43,10 +43,6 @@ final class PlayerInstance{
 		readonly private Player $player
 	){
 		$this->logger = new PrefixedLogger($this->loader->getLogger(), $player->getName());
-	}
-
-	public function getLogger() : Logger{
-		return $this->logger;
 	}
 
 	public function acquireLock() : int{
@@ -86,8 +82,8 @@ final class PlayerInstance{
 	 * @param Closure(PlayerWorldData) : void $callback
 	 */
 	public function loadWorldData(WorldInstance $world, Closure $callback) : void{
-		if(isset($this->world_data[$name = $world->getName()])){
-			$this->getLogger()->debug("Loaded data for world " . $name . " from memory");
+		if(isset($this->world_data[$name = $world->name])){
+			$this->logger->debug("Loaded data for world " . $name . " from memory");
 			$callback($this->world_data[$name]);
 			return;
 		}
@@ -107,7 +103,7 @@ final class PlayerInstance{
 				$player = $weak_player->get();
 				if($player !== null){
 					$instance = $loader->getPlayerManager()->get($player);
-					$instance->getLogger()->debug("Loaded data for world " . $name . " from database");
+					$instance->logger->debug("Loaded data for world " . $name . " from database");
 					$instance->onWorldDataLoad($name, $data);
 					$instance->releaseLock($lock);
 				}
@@ -130,10 +126,10 @@ final class PlayerInstance{
 	}
 
 	public function saveWorldData(WorldInstance $world, PlayerWorldData $data, int $cause) : void{
-		$this->world_data[$world->getName()] = $data;
+		$this->world_data[$world->name] = $data;
 
-		$name = $world->getName();
-		$logger = $this->getLogger();
+		$name = $world->name;
+		$logger = $this->logger;
 		$logger->debug("Saving data for world " . $name . "...");
 		$this->loader->getWorldManager()->getDatabase()->save($world, $this->player, $data, $cause, static function(bool $success) use($name, $logger, $cause) : void{
 			if($success){
