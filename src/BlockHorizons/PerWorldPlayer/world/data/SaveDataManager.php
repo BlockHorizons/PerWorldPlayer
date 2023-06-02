@@ -11,11 +11,7 @@ use ReflectionClass;
 
 final class SaveDataManager{
 
-	/**
-	 * @var Closure[]
-	 *
-	 * @phpstan-var array<string, Closure(PlayerWorldData $data, Player $player) : void>
-	 */
+	/** @var array<string, Closure(PlayerWorldData $data, Player $player) : void> */
 	private array $injectors = [];
 
 	public function __construct(Loader $loader){
@@ -52,9 +48,7 @@ final class SaveDataManager{
 
 	/**
 	 * @param string $identifier
-	 * @param Closure $injector
-	 *
-	 * @phpstan-param Closure(PlayerWorldData $data, Player $player) : void $injector
+	 * @param Closure(PlayerWorldData $data, Player $player) : void $injector
 	 */
 	private function registerInjector(string $identifier, Closure $injector) : void{
 		$this->injectors[$identifier] = $injector;

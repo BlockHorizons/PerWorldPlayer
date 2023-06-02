@@ -17,14 +17,10 @@ final class PlayerWorldData{
 	}
 
 	/**
-	 * @param Item[] $armor
-	 * @param Item[] $inventory
-	 * @param Item[] $ender
+	 * @param array<int, Item> $armor
+	 * @param array<int, Item> $inventory
+	 * @param array<int, Item> $ender
 	 * @return self
-	 *
-	 * @phpstan-param array<int, Item> $armor
-	 * @phpstan-param array<int, Item> $inventory
-	 * @phpstan-param array<int, Item> $ender
 	 */
 	public static function emptyWithInventory(array $armor, array $inventory, array $ender) : PlayerWorldData{
 		return new self($armor, $inventory, $ender, 20.0, [], Server::getInstance()->getGamemode(), 0, 20.0, 0.0, 5.0);
@@ -59,9 +55,9 @@ final class PlayerWorldData{
 	}
 
 	/**
-	 * @param Item[] $armor_inventory
-	 * @param Item[] $inventory
-	 * @param Item[] $ender_inventory
+	 * @param array<int, Item> $armor_inventory
+	 * @param array<int, Item> $inventory
+	 * @param array<int, Item> $ender_inventory
 	 * @param float $health
 	 * @param EffectInstance[] $effects
 	 * @param GameMode $gamemode
@@ -69,10 +65,6 @@ final class PlayerWorldData{
 	 * @param float $food
 	 * @param float $exhaustion
 	 * @param float $saturation
-	 *
-	 * @phpstan-param array<int, Item> $armor_inventory
-	 * @phpstan-param array<int, Item> $inventory
-	 * @phpstan-param array<int, Item> $ender_inventory
 	 */
 	public function __construct(
 		public array $armor_inventory,

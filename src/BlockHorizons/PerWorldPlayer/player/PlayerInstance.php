@@ -34,18 +34,10 @@ final class PlayerInstance{
 	/** @var PlayerWorldData[] */
 	private array $world_data = [];
 
-	/**
-	 * @var Closure[][]
-	 *
-	 * @phpstan-var array<string, array<int, Closure(PlayerWorldData) : void>>
-	 */
+	/** @var array<string, array<int, Closure(PlayerWorldData) : void>> */
 	private array $world_data_callbacks = [];
 
-	/**
-	 * @var Closure[]
-	 *
-	 * @phpstan-var array<Closure() : void>
-	 */
+	/** @var array<Closure() : void> */
 	private array $on_locks_release = [];
 
 	public function __construct(Loader $loader, Player $player){
@@ -79,9 +71,7 @@ final class PlayerInstance{
 	}
 
 	/**
-	 * @param Closure $callback
-	 *
-	 * @phpstan-param Closure() : void $callback
+	 * @param Closure() : void $callback
 	 */
 	public function waitForUnlock(Closure $callback) : void{
 		if($this->isLocked()){
@@ -94,9 +84,7 @@ final class PlayerInstance{
 
 	/**
 	 * @param WorldInstance $world
-	 * @param Closure $callback
-	 *
-	 * @phpstan-param Closure(PlayerWorldData) : void $callback
+	 * @param Closure(PlayerWorldData) : void $callback
 	 */
 	public function loadWorldData(WorldInstance $world, Closure $callback) : void{
 		if(isset($this->world_data[$name = $world->getName()])){
